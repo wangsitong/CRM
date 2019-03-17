@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://115.238.246.134:3306/crm?serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/crm?serverTimezone=UTC
+    username: root
+#     password: 87281178
+    password: root
+
+  jpa:
+    database: MySQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+
+
+logging:
+  config: classpath:log4j2.xml
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
