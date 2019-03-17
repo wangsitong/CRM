@@ -22,8 +22,8 @@ public class RoleController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public Object save(Role role) {
-        this.roleService.save(role);
+    public Object save(Role role, String[] objects) {
+        this.roleService.save(role, objects);
         return ResponseUtils.success();
     }
 

@@ -32,11 +32,25 @@ public class RoleService {
     }
 
     @Transactional
-    public void save(Role role) {
+    public void save(Role role, String[] objects) {
         if (StringUtils.isBlank(role.getId())) {
             role.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
-        this.roleRepository.save(role);
+        this.roleRepository.saveAndFlush(role);
+        this.roleObjectRepository.deleteByRoleId(role.getId());
+
+        if (objects != null && objects.length > 0) {
+            for (String objectId : objects) {
+                if (StringUtils.isBlank(objectId)) {
+                    continue;
+                }
+                RoleObject roleObject = new RoleObject();
+                roleObject.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+                roleObject.setRoleId(role.getId());
+                roleObject.setObjectId(objectId);
+                this.roleObjectRepository.save(roleObject);
+            }
+        }
     }
 
     @Transactional

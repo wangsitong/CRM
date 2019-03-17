@@ -15,18 +15,35 @@ public class ResponseUtils {
 
     public static Map<String, Object> getResult(int status, Object data, String message) {
         Map<String, Object> result = new HashMap<>();
-        result.put("status", status);
         if (data != null) {
-            result.put("data", data);
+            if (data instanceof Map) {
+                Map<String, Object> resultMap = (Map<String, Object>) data;
+                if (!resultMap.containsKey("data")) {
+                    result.put("data", data);
+                } else {
+                    result = resultMap;
+                }
+            } else {
+                result.put("data", data);
+            }
         }
         if (message != null) {
             result.put("message", message);
         }
+
+        result.put("status", status);
         return result;
     }
 
     public static Map<String, Object> getResult(int status, Object data) {
         return getResult(status, data, null);
+    }
+
+    public static Map<String, Object> getResult(int status, PageDTO pageDTO) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", pageDTO.getDataList());
+        result.put("total", pageDTO.getTotal());
+        return getResult(status, result, null);
     }
 
     public static Map<String, Object> getResult(int status, String message) {

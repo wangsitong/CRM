@@ -1,7 +1,5 @@
 package org.crm.model.entity;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -10,8 +8,6 @@ import java.io.Serializable;
 public class Role implements Serializable {
 
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
     @Column(name = "id", length = 40, unique = true, nullable = false)
     private String id;
     @Column(name = "name", length = 100, unique = true, nullable = false)

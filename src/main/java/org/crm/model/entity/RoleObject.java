@@ -7,7 +7,6 @@ import javax.persistence.*;
 public class RoleObject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", length = 40, unique = true, nullable = false)
     private String id;
     @Column(name = "role_id", length = 40, nullable = false)
