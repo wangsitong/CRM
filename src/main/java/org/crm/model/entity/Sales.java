@@ -15,23 +15,23 @@ public class Sales implements Serializable {
     @Column(name = "id", length = 40, unique = true, nullable = false)
     private String id;
     @Column(name = "sales_date", nullable = false)
-    private Date date;
+    private Date salesDate;
     @Column(name = "customer_id", length = 40, nullable = false)
     private String customerId;
     @Column(name = "customer_name", length = 250)
     private String customerName;
     @Column(name = "sales_oil", length = 250)
-    private String oil;
+    private String salesOil;
     @Column(name = "customer_manager_id", length = 40)
     private String customerManagerId;
     @Column(name = "customer_manager", length = 250)
     private String customerManager;
     @Column(name = "sales_station", length = 250)
-    private String station;
+    private String salesStation;
     @Column(name = "sales_count")
-    private Double count;
+    private Double salesCount;
     @Column(name = "sales_price")
-    private Double price;
+    private Double salesPrice;
 
     public String getId() {
         return id;
@@ -41,12 +41,12 @@ public class Sales implements Serializable {
         this.id = id;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getSalesDate() {
+        return salesDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setSalesDate(Date salesDate) {
+        this.salesDate = salesDate;
     }
 
     public String getCustomerId() {
@@ -65,12 +65,12 @@ public class Sales implements Serializable {
         this.customerName = customerName;
     }
 
-    public String getOil() {
-        return oil;
+    public String getSalesOil() {
+        return salesOil;
     }
 
-    public void setOil(String oil) {
-        this.oil = oil;
+    public void setSalesOil(String salesOil) {
+        this.salesOil = salesOil;
     }
 
     public String getCustomerManagerId() {
@@ -89,27 +89,27 @@ public class Sales implements Serializable {
         this.customerManager = customerManager;
     }
 
-    public String getStation() {
-        return station;
+    public String getSalesStation() {
+        return salesStation;
     }
 
-    public void setStation(String station) {
-        this.station = station;
+    public void setSalesStation(String salesStation) {
+        this.salesStation = salesStation;
     }
 
-    public Double getCount() {
-        return count;
+    public Double getSalesCount() {
+        return salesCount;
     }
 
-    public void setCount(Double count) {
-        this.count = count;
+    public void setSalesCount(Double salesCount) {
+        this.salesCount = salesCount;
     }
 
-    public Double getPrice() {
-        return price;
+    public Double getSalesPrice() {
+        return salesPrice;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
+    public void setSalesPrice(Double salesPrice) {
+        this.salesPrice = salesPrice;
     }
 }

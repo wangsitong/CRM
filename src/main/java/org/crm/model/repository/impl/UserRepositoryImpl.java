@@ -1,6 +1,7 @@
 package org.crm.model.repository.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.crm.common.QueryUtils;
 import org.crm.model.entity.User;
 import org.crm.model.repository.UserRepository;
 import org.springframework.stereotype.Repository;
@@ -39,16 +40,10 @@ public class UserRepositoryImpl implements UserRepository {
     public List<User> findList(User condition, int firstResult, int maxResults) {
         StringBuilder hql = new StringBuilder("from User where 1=1 ");
         Map<String, Object> params = this.setQueryParams(hql, condition);
-
         Query query = this.entityManager.createQuery(hql.toString());
+        QueryUtils.setParams(query, params);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
-
-        if (!params.isEmpty()) {
-            for (String key : params.keySet()) {
-                query.setParameter(key, params.get(key));
-            }
-        }
         return query.getResultList();
     }
 
@@ -57,11 +52,7 @@ public class UserRepositoryImpl implements UserRepository {
         StringBuilder hql = new StringBuilder("select count(id) from User where 1=1 ");
         Map<String, Object> params = this.setQueryParams(hql, condition);
         Query query = this.entityManager.createQuery(hql.toString());
-        if (!params.isEmpty()) {
-            for (String key : params.keySet()) {
-                query.setParameter(key, params.get(key));
-            }
-        }
+        QueryUtils.setParams(query, params);
         return ((Number)query.getSingleResult()).intValue();
     }
 

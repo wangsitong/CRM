@@ -48,16 +48,16 @@ public class UserController {
         return ResponseUtils.success();
     }
 
-    @RequestMapping(value = "/{id}/role")
+    @RequestMapping(value = "/{id}/roles")
     public Object roles(@PathVariable("id") String id) {
         List<?> dataList = this.userService.getRoles(id);
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
     }
 
-    @RequestMapping(value = "/{id}/role/objects")
-    public Object roleObjects(@PathVariable("id") String id) {
-        List<?> dataList = this.userService.getRoleObjects(id);
-        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
+    @RequestMapping(value = "/{id}/roles", method = RequestMethod.POST)
+    public Object setRoles(@PathVariable("id") String id, @RequestParam(value = "roleId", required = false) String[] roleId) {
+        this.userService.addRoles(id, roleId);
+        return ResponseUtils.success();
     }
 
 }

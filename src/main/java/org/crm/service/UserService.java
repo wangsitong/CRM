@@ -2,6 +2,7 @@ package org.crm.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crm.common.PageDTO;
+import org.crm.model.entity.Role;
 import org.crm.model.entity.User;
 import org.crm.model.entity.UserRole;
 import org.crm.model.repository.RoleObjectRepository;
@@ -65,18 +66,30 @@ public class UserService {
     }
 
     public List<?> getRoles(String userId) {
-        List<UserRole> roles = this.userRoleRepository.findByUserId(userId);
+        List<Role> roles = this.userRoleRepository.findByUserId(userId);
+        for (Role role : roles) {
+            role.setObjects(this.roleObjectRepository.findObjectsByRoleId(role.getId()));
+        }
         return roles;
     }
 
-    public List<?> getRoleObjects(String userId) {
-        List<UserRole> roles = this.userRoleRepository.findByUserId(userId);
-        List<?> roleObjects = new ArrayList<>();
-        for (UserRole userRole : roles) {
-            List<?> objects = this.roleObjectRepository.findObjectsByRoleId(userRole.getRoleId());
-            roleObjects.addAll(new ArrayList(objects));
+    @Transactional
+    public void addRoles(String userId, String[] roleIds) {
+        if (StringUtils.isBlank(userId)) {
+            return;
         }
-        return roleObjects;
+        this.userRoleRepository.deleteByUserId(userId);
+        for (String roleId : roleIds) {
+            if (StringUtils.isBlank(roleId)) {
+                continue;
+            }
+            UserRole userRole = new UserRole();
+            userRole.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            userRole.setUserId(userId);
+            userRole.setRoleId(roleId);
+
+            this.userRoleRepository.save(userRole);
+        }
     }
 
 }
