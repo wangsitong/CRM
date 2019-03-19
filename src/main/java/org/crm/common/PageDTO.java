@@ -1,5 +1,6 @@
 package org.crm.common;
 
+
 import java.util.List;
 
 public class PageDTO<E> {
