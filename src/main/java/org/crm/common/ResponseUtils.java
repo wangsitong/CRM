@@ -13,7 +13,7 @@ public class ResponseUtils {
     public static final int STATUS_SUCCESS = 0;
     public static final int STATUS_ERROR = -1;
 
-    public static Map<String, Object> getResult(int status, Object data, String message) {
+    public static Map<String, Object> getResult(int status, Object data, PageInfo pageInfo, String message) {
         Map<String, Object> result = new HashMap<>();
         if (data != null) {
             if (data instanceof Map) {
@@ -27,6 +27,9 @@ public class ResponseUtils {
                 result.put("data", data);
             }
         }
+        if (pageInfo != null) {
+            result.put("page", pageInfo);
+        }
         if (message != null) {
             result.put("message", message);
         }
@@ -36,18 +39,22 @@ public class ResponseUtils {
     }
 
     public static Map<String, Object> getResult(int status, Object data) {
-        return getResult(status, data, null);
+        return getResult(status, data, null, null);
+    }
+
+    public static Map<String, Object> getResult(int status, Object data, PageInfo pageInfo) {
+        return getResult(status, data, pageInfo, null);
     }
 
     public static Map<String, Object> getResult(int status, PageDTO pageDTO) {
         Map<String, Object> result = new HashMap<>();
         result.put("data", pageDTO.getDataList());
         result.put("total", pageDTO.getTotal());
-        return getResult(status, result, null);
+        return getResult(status, result, null, null);
     }
 
     public static Map<String, Object> getResult(int status, String message) {
-        return getResult(status, null, message);
+        return getResult(status, null, null, message);
     }
 
     public static Object success() {

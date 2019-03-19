@@ -1,9 +1,8 @@
 package org.crm.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.crm.model.entity.Manager;
-import org.crm.model.repository.ManagerRepository;
-import org.omg.CORBA.PUBLIC_MEMBER;
+import org.crm.model.entity.Area;
+import org.crm.model.repository.AreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,20 +10,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ManagerService {
+public class AreaService {
 
     @Autowired
-    private ManagerRepository managerRepository;
+    private AreaRepository areaRepository;
 
-    public Page getList(Manager condition, int page, int pageSize) {
+    public Page getList(Area condition, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        Specification<Manager> specification = (Specification<Manager>) (root, criteriaQuery, criteriaBuilder) -> {
+        Specification<Area> specification = (Specification<Area>) (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (condition != null) {
                 if (StringUtils.isNotBlank(condition.getName())) {
@@ -34,15 +34,23 @@ public class ManagerService {
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[] {}));
         };
-        Page<Manager> pageData = this.managerRepository.findAll(specification, pageable);
+        Page<Area> pageData = this.areaRepository.findAll(specification, pageable);
         return pageData;
     }
 
-    public void save(Manager manager) {
-        if (StringUtils.isBlank(manager.getId())) {
-            manager.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+    public Area getByCode(String code) {
+        return this.areaRepository.findByCode(code);
+    }
+
+    public Area getByName(String name) {
+        return this.areaRepository.findByName(name);
+    }
+
+    public void save(Area area) {
+        if (StringUtils.isBlank(area.getId())) {
+            area.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
-        this.managerRepository.save(manager);
+        this.areaRepository.save(area);
     }
 
     public void delete(String id) {
@@ -51,7 +59,7 @@ public class ManagerService {
             if (StringUtils.isBlank(_id)) {
                 continue;
             }
-            this.managerRepository.delete(this.managerRepository.findById(_id).get());
+            this.areaRepository.delete(this.areaRepository.findById(_id).get());
         }
     }
 
