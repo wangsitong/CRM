@@ -8,6 +8,8 @@ public interface CustomerRepository<T> {
 
     <T> T findByCode(String code);
 
+    <T> T findByName(String name);
+
     List<T> findList(T condition, int firstResult, int maxResults);
 
     int findCount(T condition);

@@ -26,10 +26,23 @@ public class CustomerRepositoryImpl implements CustomerRepository<Customer> {
 
     @Override
     public Customer findByCode(String code) {
-        StringBuilder hql = new StringBuilder("from Customer c where code = :code ");
+        return this.findByProperty("code", code);
+    }
+
+    @Override
+    public Customer findByName(String name) {
+        return this.findByProperty("name", name);
+    }
+
+    public Customer findByProperty(String property, String value) {
+        StringBuilder hql = new StringBuilder("from Customer c where " + property + " = :" + property + " ");
         Query query = this.entityManager.createQuery(hql.toString());
-        query.setParameter("code", code);
-        return (Customer) query.getSingleResult();
+        query.setParameter(property, value);
+        List<?> dataList = query.getResultList();
+        if (dataList != null && !dataList.isEmpty()) {
+            return (Customer) dataList.get(0);
+        }
+        return null;
     }
 
     @Override

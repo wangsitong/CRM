@@ -22,6 +22,10 @@ public class CustomerService {
         return this.customerRepository.findByCode(code);
     }
 
+    public Customer getByName(String name) {
+        return this.customerRepository.findByName(name);
+    }
+
     public Customer getById(String id) {
         return this.customerRepository.findById(id);
     }
