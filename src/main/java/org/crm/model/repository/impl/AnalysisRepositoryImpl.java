@@ -1,7 +1,7 @@
 package org.crm.model.repository.impl;
 
 import org.crm.common.QueryUtils;
-import org.crm.model.dto.DirectSalesDTO;
+import org.crm.model.dto.SalesDTO;
 import org.crm.model.repository.AnalysisRepository;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
@@ -12,9 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class AnalysisRepositoryImpl implements AnalysisRepository {
@@ -23,7 +21,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<Map<String, Object>> findStatisBySaleChannel(DirectSalesDTO condition) {
+    public List<Map<String, Object>> findStatisBySaleChannel(SalesDTO condition) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sql= new StringBuilder();
         sql.append("select sales_channel as channel, count(*) as count from direct_sales s where 1=1 ");
@@ -46,7 +44,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     }
 
     @Override
-    public List<Map<String, Object>> findCustomerSalesRank(DirectSalesDTO condition, int maxResults) {
+    public List<Map<String, Object>> findCustomerSalesRank(SalesDTO condition, int maxResults) {
         StringBuilder sql= new StringBuilder();
         sql.append("select customer_id as customerId, customer_name as customerName,sum(sales_count) as total from all_channel_sales s where 1=1 ");
 
@@ -71,7 +69,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     }
 
     @Override
-    public List<Map<String, Object>> findSalesCountPerMonth(DirectSalesDTO condition) {
+    public List<Map<String, Object>> findSalesCountPerMonth(SalesDTO condition) {
         StringBuilder sql= new StringBuilder();
         sql.append("select date_format(s.sales_date, '%Y%m') as date,");
         sql.append("sum(case when s.sales_channel = '直销' then s.sales_count else 0 end) channel_zx,");
@@ -93,6 +91,37 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("GROUP BY date_format(s.sales_date, '%Y%m')");
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Map<String, Object>> findManagerSales(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-01");
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int year = c.get(Calendar.YEAR);
+        String startTime = df.format(c.getTime());
+        c.add(Calendar.MONTH, 1);
+        String endTime = df.format(c.getTime());
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("select m.manager_id, m.manager_name,c.customer_area, sum(sales_count) as count, ");
+        sql.append("sum(case when s.sales_oil like '%汽油%' then s.sales_count else 0 end) gas, ");
+        sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) diesel ");
+        sql.append("from manager m ");
+        sql.append("left join sales s on m.manager_id = s.manager_id ");
+        sql.append("left join customer c on c.customer_id = s.customer_id ");
+        sql.append("where 1=1 ");
+        sql.append("and c.customer_id in (select customer_id from private_station) ");
+        sql.append("and sales_date >= :startTime ");
+        sql.append("and sales_date < :endTime ");
+        sql.append("group by m.manager_id, m.manager_name,c.customer_area ");
+        sql.append("order by c.customer_area ");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.setParameter("startTime", startTime);
+        query.setParameter("endTime", endTime);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
     }

@@ -1,12 +1,12 @@
 package org.crm.model.dto;
 
-import org.crm.model.entity.DirectSales;
+import org.crm.model.entity.Sales;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
 
-public class DirectSalesDTO extends DirectSales implements Serializable {
+public class SalesDTO extends Sales implements Serializable {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startSalesDate;

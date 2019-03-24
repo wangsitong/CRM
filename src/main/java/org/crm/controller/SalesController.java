@@ -1,6 +1,7 @@
 package org.crm.controller;
 
 import org.crm.common.PageDTO;
+import org.crm.common.PageInfo;
 import org.crm.common.ResponseUtils;
 import org.crm.model.entity.Sales;
 import org.crm.service.SalesService;
@@ -21,7 +22,8 @@ public class SalesController {
                        @RequestParam(value = "page", defaultValue = "1", required = false) int page,
                        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
         PageDTO dto = this.salesService.getList(condition, (page - 1) * pageSize, pageSize);
-        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto);
+        PageInfo pageInfo = new PageInfo(page, pageSize, dto.getTotal());
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
     }
 
 }
