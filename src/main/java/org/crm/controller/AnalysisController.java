@@ -23,7 +23,7 @@ public class AnalysisController {
     @Autowired
     private DemandService demandService;
 
-    @RequestMapping("/sales-channel")
+    @RequestMapping("/salesChannel")
     public Object salesChannels(SalesDTO condition) {
         List<?> dataList = this.analysisService.getDirectSalesChannelStatis(condition);
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
