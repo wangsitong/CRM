@@ -1,5 +1,6 @@
 package org.crm.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.crm.common.PageInfo;
 import org.crm.common.ResponseUtils;
 import org.crm.model.entity.Manager;
@@ -25,6 +26,18 @@ public class ManagerController {
         Page result = this.managerService.getList(condition, page - 1, pageSize);
         PageInfo pageInfo = new PageInfo(page, pageSize, (int)result.getTotalElements());
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, result.getContent(), pageInfo);
+    }
+
+    @RequestMapping("/validate")
+    public Object validate(@RequestParam("managerId") String managerId) {
+        Object data = null;
+        if (StringUtils.isNotBlank(managerId)) {
+            data = this.managerService.getByManagerId(managerId);
+        }
+        if (data != null) {
+            return ResponseUtils.error("Manager id has bee exists.");
+        }
+        return ResponseUtils.success();
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)

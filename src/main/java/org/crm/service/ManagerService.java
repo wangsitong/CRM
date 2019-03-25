@@ -3,7 +3,6 @@ package org.crm.service;
 import org.apache.commons.lang3.StringUtils;
 import org.crm.model.entity.Manager;
 import org.crm.model.repository.ManagerRepository;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +35,14 @@ public class ManagerService {
         };
         Page<Manager> pageData = this.managerRepository.findAll(specification, pageable);
         return pageData;
+    }
+
+    public Manager getByManagerId(String managerId) {
+        List<?> dataList = this.managerRepository.findByManagerId(managerId);
+        if (dataList != null && !dataList.isEmpty()) {
+            return (Manager) dataList.get(0);
+        }
+        return null;
     }
 
     public void save(Manager manager) {

@@ -24,7 +24,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     public List<Map<String, Object>> findStatisBySaleChannel(SalesDTO condition) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sql= new StringBuilder();
-        sql.append("select sales_channel as channel, count(*) as count from direct_sales s where 1=1 ");
+        sql.append("select sales_channel as channel, count(*) as count from sales s where 1=1 ");
         if (condition != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             if (condition.getStartSalesDate() != null) {
@@ -46,7 +46,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     @Override
     public List<Map<String, Object>> findCustomerSalesRank(SalesDTO condition, int maxResults) {
         StringBuilder sql= new StringBuilder();
-        sql.append("select customer_id as customerId, customer_name as customerName,sum(sales_count) as total from all_channel_sales s where 1=1 ");
+        sql.append("select customer_id as customerId, customer_name as customerName,sum(sales_count) as total from sales s where 1=1 ");
 
         Map<String, Object> params = new HashMap<>();
         params.put("maxResults", maxResults);
@@ -73,8 +73,8 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         StringBuilder sql= new StringBuilder();
         sql.append("select date_format(s.sales_date, '%Y%m') as date,");
         sql.append("sum(case when s.sales_channel = '直销' then s.sales_count else 0 end) channel_zx,");
-        sql.append("sum(case when s.sales_channel = '批发' then s.sales_count else 0 end) channel_pf ");
-        sql.append("from direct_sales s where 1=1 ");
+        sql.append("sum(case when s.sales_channel = '分销' then s.sales_count else 0 end) channel_fx ");
+        sql.append("from sales s where 1=1 ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {

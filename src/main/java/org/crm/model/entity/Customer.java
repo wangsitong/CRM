@@ -21,8 +21,10 @@ public class Customer implements Serializable {
     private String address;
     @Column(name = "customer_area", length = 50)
     private String area;
-    @Column(name = "customer_manager", length = 50)
-    private String manager;
+    @Column(name = "manager_id", length = 40)
+    private String managerId;
+    @Column(name = "manager_name", length = 250)
+    private String managerName;
     @Column(name = "customer_sales_channel", length = 10)
     private String salesChannel;
     @Column(name = "customer_level", length = 10)
@@ -71,12 +73,20 @@ public class Customer implements Serializable {
         this.area = area;
     }
 
-    public String getManager() {
-        return manager;
+    public String getManagerId() {
+        return managerId;
     }
 
-    public void setManager(String manager) {
-        this.manager = manager;
+    public void setManagerId(String managerId) {
+        this.managerId = managerId;
+    }
+
+    public String getManagerName() {
+        return managerName;
+    }
+
+    public void setManagerName(String managerName) {
+        this.managerName = managerName;
     }
 
     public String getSalesChannel() {
