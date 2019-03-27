@@ -82,4 +82,10 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, resultMap.values());
     }
 
+    @RequestMapping("/demandAll")
+    public Object demandAll(@RequestParam("year") String year) {
+        Object data = this.demandService.getTotal(year);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
 }

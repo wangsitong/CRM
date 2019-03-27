@@ -88,7 +88,8 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
         }
-        sql.append("GROUP BY date_format(s.sales_date, '%Y%m')");
+        sql.append("GROUP BY date_format(s.sales_date, '%Y%m') ");
+        sql.append("order by date_format(s.sales_date, '%Y%m')");
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);

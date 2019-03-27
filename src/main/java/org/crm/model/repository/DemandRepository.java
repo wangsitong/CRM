@@ -7,4 +7,6 @@ public interface DemandRepository {
 
     List<Map<String, Object>> getAreas(String year);
 
+    Map<String, Object> findTotal(String year);
+
 }

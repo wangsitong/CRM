@@ -2,6 +2,7 @@ package org.crm.model.repository.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crm.common.QueryUtils;
+import org.crm.model.dto.SalesDTO;
 import org.crm.model.entity.Sales;
 import org.crm.model.repository.SalesRepository;
 import org.springframework.stereotype.Repository;
@@ -25,7 +26,7 @@ public class SalesRepositoryImpl implements SalesRepository {
     }
 
     @Override
-    public List<?> findByCondition(Sales condition, int fistResult, int maxResults) {
+    public List<?> findByCondition(SalesDTO condition, int fistResult, int maxResults) {
         StringBuilder hql = new StringBuilder("select s from Sales s where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
         Query query = this.entityManager.createQuery(hql.toString());
@@ -36,7 +37,7 @@ public class SalesRepositoryImpl implements SalesRepository {
     }
 
     @Override
-    public int findCount(Sales condition) {
+    public int findCount(SalesDTO condition) {
         StringBuilder hql = new StringBuilder("select count(s) from Sales s where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
         Query query = this.entityManager.createQuery(hql.toString());
@@ -44,7 +45,7 @@ public class SalesRepositoryImpl implements SalesRepository {
         return ((Number)query.getSingleResult()).intValue();
     }
 
-    private Map<String, Object> setQueryParams(Sales condition, StringBuilder hql) {
+    private Map<String, Object> setQueryParams(SalesDTO condition, StringBuilder hql) {
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
             if (StringUtils.isNotBlank(condition.getCustomerId())) {
@@ -54,6 +55,22 @@ public class SalesRepositoryImpl implements SalesRepository {
             if (StringUtils.isNotBlank(condition.getSalesStation())) {
                 hql.append("and station like :station ");
                 params.put("station", "%" + condition.getSalesStation() + "%");
+            }
+            if (StringUtils.isNotBlank(condition.getSalesChannel())) {
+                hql.append("and salesChannel = :salesChannel ");
+                params.put("salesChannel", condition.getSalesChannel());
+            }
+            if (condition.getStartSalesDate() != null) {
+                hql.append("and salesDate >= :startDate ");
+                params.put("startDate", condition.getStartSalesDate());
+            }
+            if (condition.getEndSalesDate() != null) {
+                hql.append("and salesDate <= :endDate ");
+                params.put("endDate", condition.getEndSalesDate());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesStationNotEquals())) {
+                hql.append("and salesStation <> :stationNotEquals ");
+                params.put("stationNotEquals", condition.getSalesStationNotEquals());
             }
         }
         return params;

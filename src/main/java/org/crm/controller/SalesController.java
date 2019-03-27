@@ -3,7 +3,7 @@ package org.crm.controller;
 import org.crm.common.PageDTO;
 import org.crm.common.PageInfo;
 import org.crm.common.ResponseUtils;
-import org.crm.model.entity.Sales;
+import org.crm.model.dto.SalesDTO;
 import org.crm.service.SalesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +18,21 @@ public class SalesController {
     private SalesService salesService;
 
     @RequestMapping("")
-    public Object list(Sales condition,
+    public Object list(SalesDTO condition,
                        @RequestParam(value = "page", defaultValue = "1", required = false) int page,
                        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        PageDTO dto = this.salesService.getList(condition, (page - 1) * pageSize, pageSize);
+        PageInfo pageInfo = new PageInfo(page, pageSize, dto.getTotal());
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
+    }
+
+    @RequestMapping("/tywy")
+    public Object listOfTywy(SalesDTO condition,
+                       @RequestParam(value = "page", defaultValue = "1", required = false) int page,
+                       @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        condition.setSalesStationNotEquals("#");
+        condition.setSalesChannel("分销");
+
         PageDTO dto = this.salesService.getList(condition, (page - 1) * pageSize, pageSize);
         PageInfo pageInfo = new PageInfo(page, pageSize, dto.getTotal());
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);

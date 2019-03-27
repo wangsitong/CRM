@@ -34,4 +34,21 @@ public class DemandRepositoryImpl implements DemandRepository {
         return query.getResultList();
     }
 
+    public Map<String, Object> findTotal(String year) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select sum(customer_demand_gas) gas,");
+        sql.append("sum(customer_demand_diesel) diesel ");
+        sql.append("from customer_demand ");
+        sql.append("where customer_demand_year = :year");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.setParameter("year", year);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        List<Map<String, Object>> dataList = query.getResultList();
+        if (dataList != null && !dataList.isEmpty()) {
+            return dataList.get(0);
+        }
+        return null;
+    }
+
 }

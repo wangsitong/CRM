@@ -17,4 +17,8 @@ public class DemandService {
         return this.demandRepository.getAreas(year);
     }
 
+    public Map<String, Object> getTotal(String year) {
+        return this.demandRepository.findTotal(year);
+    }
+
 }
