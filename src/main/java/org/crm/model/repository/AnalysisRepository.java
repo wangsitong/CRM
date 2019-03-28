@@ -8,6 +8,8 @@ import java.util.Map;
 
 public interface AnalysisRepository {
 
+    double findSalesCount(SalesDTO condition);
+
     List<Map<String, Object>> findStatisBySaleChannel(SalesDTO condition);
 
     List<Map<String, Object>> findCustomerSalesRank(SalesDTO condition, int maxResults);

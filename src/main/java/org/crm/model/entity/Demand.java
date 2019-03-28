@@ -1,9 +1,6 @@
 package org.crm.model.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
@@ -15,6 +12,8 @@ public class Demand implements Serializable {
     private String id;
     @Column(name = "customer_id", length = 40, nullable = false)
     private String customerId;
+    @Column(name = "customer_name", length = 250, nullable = false)
+    private String customerName;
     @Column(name = "customer_demand_gas")
     private Double gas;
     @Column(name = "customer_demand_diesel")
@@ -36,6 +35,14 @@ public class Demand implements Serializable {
 
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public Double getGas() {

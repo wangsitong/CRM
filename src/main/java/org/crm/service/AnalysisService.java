@@ -15,6 +15,10 @@ public class AnalysisService {
     @Autowired
     private AnalysisRepository analysisRepository;
 
+    public double getSalesCount(SalesDTO condition) {
+        return this.analysisRepository.findSalesCount(condition);
+    }
+
     public List<?> getDirectSalesChannelStatis(SalesDTO condition) {
         return this.analysisRepository.findStatisBySaleChannel(condition);
     }

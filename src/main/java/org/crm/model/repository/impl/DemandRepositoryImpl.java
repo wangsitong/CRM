@@ -1,13 +1,18 @@
 package org.crm.model.repository.impl;
 
+import org.apache.commons.lang3.StringUtils;
+import org.crm.common.QueryUtils;
+import org.crm.model.entity.Demand;
 import org.crm.model.repository.DemandRepository;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +21,44 @@ public class DemandRepositoryImpl implements DemandRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Override
+    public List<Demand> findAll(Demand condition, int firstResult, int maxResults) {
+        StringBuilder hql = new StringBuilder();
+        hql.append("select d from Demand d where 1=1 ");
+
+        Map<String, Object> params = this.setQueryParams(hql, condition);
+        Query query = this.entityManager.createQuery(hql.toString());
+        QueryUtils.setParams(query, params);
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+        return query.getResultList();
+    }
+
+    @Override
+    public int findCount(Demand condition) {
+        StringBuilder hql = new StringBuilder();
+        hql.append("select count(d.id) from Demand d where 1=1 ");
+        Map<String, Object> params = this.setQueryParams(hql, condition);
+        Query query = this.entityManager.createQuery(hql.toString());
+        QueryUtils.setParams(query, params);
+        return ((Number)query.getSingleResult()).intValue();
+    }
+
+    public Map<String, Object> setQueryParams(StringBuilder hql, Demand condition) {
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            if (StringUtils.isNotBlank(condition.getCustomerId())) {
+                hql.append("and customerId = :customerId ");
+                params.put("customerId", condition.getCustomerId());
+            }
+            if (StringUtils.isNotBlank(condition.getYear())) {
+                hql.append("and year = :year ");
+                params.put("year", condition.getYear());
+            }
+        }
+        return params;
+    }
 
     @Override
     public List<Map<String, Object>> getAreas(String year) {
@@ -34,6 +77,7 @@ public class DemandRepositoryImpl implements DemandRepository {
         return query.getResultList();
     }
 
+    @Override
     public Map<String, Object> findTotal(String year) {
         StringBuilder sql = new StringBuilder();
         sql.append("select sum(customer_demand_gas) gas,");
@@ -49,6 +93,29 @@ public class DemandRepositoryImpl implements DemandRepository {
             return dataList.get(0);
         }
         return null;
+    }
+
+    @Override
+    public void save(Demand instance) {
+        this.entityManager.persist(instance);
+    }
+
+    @Override
+    public void update(Demand instance) {
+        this.entityManager.merge(instance);
+    }
+
+    @Override
+    public void delete(String id) {
+        this.entityManager.remove(this.entityManager.find(Demand.class, id));
+    }
+
+    @Override
+    public void deleteByCustomer(String customerId) {
+        String hql = "delete from Demand where customerId = :customerId";
+        Query query = this.entityManager.createQuery(hql, Demand.class);
+        query.setParameter("customerId", customerId);
+        query.executeUpdate();
     }
 
 }

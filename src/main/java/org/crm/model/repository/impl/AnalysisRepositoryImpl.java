@@ -1,5 +1,6 @@
 package org.crm.model.repository.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.crm.common.QueryUtils;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.repository.AnalysisRepository;
@@ -24,7 +25,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     public List<Map<String, Object>> findStatisBySaleChannel(SalesDTO condition) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sql= new StringBuilder();
-        sql.append("select sales_channel as channel, count(*) as count from sales s where 1=1 ");
+        sql.append("select sales_channel as channel, sum(s.sales_count) as count from sales s where 1=1 ");
         if (condition != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             if (condition.getStartSalesDate() != null) {
@@ -35,12 +36,45 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 sql.append("and s.sales_date <= :endSalesDate ");
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
+            if (StringUtils.isNotBlank(condition.getSalesStation())) {
+                sql.append("and s.sales_station = :station ");
+                params.put("station", condition.getSalesStation());
+            }
         }
         sql.append(" group by sales_channel ");
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
+    }
+
+    @Override
+    public double findSalesCount(SalesDTO condition) {
+        StringBuilder sql= new StringBuilder();
+        sql.append("select sum(s.sales_count) as count from sales s where 1=1 ");
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startSalesDate ");
+                params.put("startSalesDate", df.format(condition.getStartSalesDate()));
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endSalesDate ");
+                params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+            if (StringUtils.isNotBlank(condition.getSalesStation())) {
+                sql.append("and s.sales_station = :station ");
+                params.put("station", condition.getSalesStation());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesStationNotEquals())) {
+                sql.append("and s.sales_station <> :salesStationNotEquals ");
+                params.put("salesStationNotEquals", condition.getSalesStationNotEquals());
+            }
+        }
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        return ((Number)query.getSingleResult()).doubleValue();
     }
 
     @Override

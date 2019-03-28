@@ -23,8 +23,22 @@ public class AnalysisController {
     @Autowired
     private DemandService demandService;
 
+    @RequestMapping("/salesCount")
+    public Object salesCount(SalesDTO condition) {
+        double value = this.analysisService.getSalesCount(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, value);
+    }
+
+    @RequestMapping("/salesCount/retail")
+    public Object retailSalesCount(SalesDTO condition) {
+        condition.setSalesStationNotEquals("#");
+        double value = this.analysisService.getSalesCount(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, value);
+    }
+
     @RequestMapping("/salesChannel")
     public Object salesChannels(SalesDTO condition) {
+        condition.setSalesStation("#");
         List<?> dataList = this.analysisService.getDirectSalesChannelStatis(condition);
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
     }
