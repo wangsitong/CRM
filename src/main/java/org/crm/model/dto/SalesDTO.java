@@ -9,6 +9,7 @@ import java.util.Date;
 public class SalesDTO extends Sales implements Serializable {
 
     private String salesStationNotEquals;
+    private String salesChannelNotEquals;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startSalesDate;
@@ -21,6 +22,14 @@ public class SalesDTO extends Sales implements Serializable {
 
     public void setSalesStationNotEquals(String salesStationNotEquals) {
         this.salesStationNotEquals = salesStationNotEquals;
+    }
+
+    public String getSalesChannelNotEquals() {
+        return salesChannelNotEquals;
+    }
+
+    public void setSalesChannelNotEquals(String salesChannelNotEquals) {
+        this.salesChannelNotEquals = salesChannelNotEquals;
     }
 
     public Date getStartSalesDate() {

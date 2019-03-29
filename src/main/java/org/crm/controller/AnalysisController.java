@@ -1,9 +1,13 @@
 package org.crm.controller;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.crm.common.PageDTO;
 import org.crm.common.ResponseUtils;
 import org.crm.model.dto.SalesDTO;
+import org.crm.model.entity.ManagerTask;
 import org.crm.service.AnalysisService;
 import org.crm.service.DemandService;
+import org.crm.service.ManagerTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +26,8 @@ public class AnalysisController {
     private AnalysisService analysisService;
     @Autowired
     private DemandService demandService;
+    @Autowired
+    private ManagerTaskService managerTaskService;
 
     @RequestMapping("/salesCount")
     public Object salesCount(SalesDTO condition) {
@@ -36,11 +42,11 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, value);
     }
 
-    @RequestMapping("/salesChannel")
+    @RequestMapping("/sales/total")
     public Object salesChannels(SalesDTO condition) {
-        condition.setSalesStation("#");
-        List<?> dataList = this.analysisService.getDirectSalesChannelStatis(condition);
-        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
+        condition.setTransfer("1");
+        Map<String, ?> dataMap = this.analysisService.getSalesTotal(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataMap);
     }
 
     @RequestMapping("/customer-sales-rank")
@@ -56,6 +62,12 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
     }
 
+    @RequestMapping("/sales/manager")
+    public Object managerSales(SalesDTO condition) {
+        List<?> dataList = this.analysisService.getManagerSales(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
+    }
+
     @RequestMapping("/salesArea")
     public Object salesArea(@RequestParam("date") String date) throws ParseException {
         DateFormat df = new SimpleDateFormat("yyyy-MM");
@@ -65,7 +77,7 @@ public class AnalysisController {
 
         List<Map<String, Object>> demands = this.demandService.getAreas(c.get(Calendar.YEAR) + "");
 
-        List<Map<String, Object>> dataList = this.analysisService.findManagerSales(d);
+        List<Map<String, Object>> dataList = this.analysisService.getManagerSales(null);
 
         Map<String, Object> resultMap = new LinkedHashMap<>();
         dataList.forEach((item)-> {
@@ -96,10 +108,45 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, resultMap.values());
     }
 
-    @RequestMapping("/demandAll")
+    @RequestMapping("/demand")
     public Object demandAll(@RequestParam("year") String year) {
         Object data = this.demandService.getTotal(year);
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
+    @RequestMapping("/sales/managerCompleteRank")
+    public Object managerCompleteRank(String date) throws Exception {
+        DateFormat df = new SimpleDateFormat("yyyy-MM");
+        Date d = df.parse(date);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+
+        Date startDate = c.getTime();
+        c.add(Calendar.MONTH, 1);
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        Date endDate = c.getTime();
+
+        SalesDTO condition = new SalesDTO();
+        condition.setStartSalesDate(startDate);
+        condition.setEndSalesDate(endDate);
+
+        List<Map<String, Object>> dataList = this.analysisService.getManagerSales(condition);
+
+        for (Map<String, Object> data : dataList) {
+            String managerId = data.get("managerId").toString();
+            ManagerTask taskCondition = new ManagerTask();
+            taskCondition.setManagerId(managerId);
+            taskCondition.setDate(d);
+            PageDTO dto = this.managerTaskService.getList(taskCondition, 1, 10);
+            List<ManagerTask> managerTasks = dto.getDataList();
+            if (managerTasks != null && managerTasks.size() > 0) {
+                Map<String, String> task = BeanUtils.describe(managerTasks.get(0));
+                data.putAll(task);
+            }
+        }
+
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
+
     }
 
 }

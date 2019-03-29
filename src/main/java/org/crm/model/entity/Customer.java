@@ -32,6 +32,8 @@ public class Customer implements Serializable {
     @Column(name = "customer_dep", length = 10)
     private String dep;
 
+    @Column(name = "analysis_exclude", length = 1)
+    private String analysisExclude;
 
     public String getId() {
         return id;
@@ -111,5 +113,13 @@ public class Customer implements Serializable {
 
     public void setDep(String dep) {
         this.dep = dep;
+    }
+
+    public String getAnalysisExclude() {
+        return analysisExclude;
+    }
+
+    public void setAnalysisExclude(String analysisExclude) {
+        this.analysisExclude = analysisExclude;
     }
 }

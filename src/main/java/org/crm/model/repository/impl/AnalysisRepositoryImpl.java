@@ -26,6 +26,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sql= new StringBuilder();
         sql.append("select sales_channel as channel, sum(s.sales_count) as count from sales s where 1=1 ");
+        sql.append("and s.sales_channel in ('直销', '分销') ");
         if (condition != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             if (condition.getStartSalesDate() != null) {
@@ -63,6 +64,10 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 sql.append("and s.sales_date <= :endSalesDate ");
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
+            if (StringUtils.isNotBlank(condition.getTransfer())) {
+                sql.append("and s.is_transfer = :transfer ");
+                params.put("transfer", condition.getTransfer());
+            }
             if (StringUtils.isNotBlank(condition.getSalesStation())) {
                 sql.append("and s.sales_station = :station ");
                 params.put("station", condition.getSalesStation());
@@ -74,13 +79,19 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         }
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
-        return ((Number)query.getSingleResult()).doubleValue();
+        Object result = query.getSingleResult();
+        if (result != null) {
+            return ((Number) result).doubleValue();
+        }
+        return 0;
     }
 
     @Override
     public List<Map<String, Object>> findCustomerSalesRank(SalesDTO condition, int maxResults) {
         StringBuilder sql= new StringBuilder();
-        sql.append("select customer_id as customerId, customer_name as customerName,sum(sales_count) as total from sales s where 1=1 ");
+        sql.append("select s.customer_id as customerId, s.customer_name as customerName,sum(sales_count) as total from sales s ");
+        sql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
+        sql.append("and ifnull(c.analysis_exclude, '') <> '1' ");
 
         Map<String, Object> params = new HashMap<>();
         params.put("maxResults", maxResults);
@@ -95,7 +106,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
         }
-        sql.append("group by customer_id, customer_name order by total desc limit :maxResults offset 0");
+        sql.append("group by s.customer_id, s.customer_name order by total desc limit :maxResults offset 0");
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
@@ -121,6 +132,16 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 sql.append("and s.sales_date <= :endSalesDate ");
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
+            if (StringUtils.isNotBlank(condition.getSalesChannelNotEquals())) {
+                sql.append("and s.sales_channel <> :salesChannelNotEquals ");
+                params.put("salesChannelNotEquals", condition.getSalesChannelNotEquals());
+            }
+            if ("1".equals(condition.getTransfer())) {
+                sql.append("and s.is_transfer = :transfer ");
+                params.put("transfer", condition.getTransfer());
+            } else if ("0".equals(condition.getTransfer())) {
+                sql.append("and ifnull(s.is_transfer, '') <> '1' ");
+            }
         }
         sql.append("GROUP BY date_format(s.sales_date, '%Y%m') ");
         sql.append("order by date_format(s.sales_date, '%Y%m')");
@@ -131,32 +152,33 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     }
 
     @Override
-    public List<Map<String, Object>> findManagerSales(Date date) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-01");
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        int year = c.get(Calendar.YEAR);
-        String startTime = df.format(c.getTime());
-        c.add(Calendar.MONTH, 1);
-        String endTime = df.format(c.getTime());
-
+    public List<Map<String, Object>> findManagerSales(SalesDTO condition) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select m.manager_id, m.manager_name,c.customer_area, sum(sales_count) as count, ");
-        sql.append("sum(case when s.sales_oil like '%汽油%' then s.sales_count else 0 end) gas, ");
-        sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) diesel ");
-        sql.append("from manager m ");
-        sql.append("left join sales s on m.manager_id = s.manager_id ");
-        sql.append("left join customer c on c.customer_id = s.customer_id ");
-        sql.append("where 1=1 ");
-        sql.append("and c.customer_id in (select customer_id from private_station) ");
-        sql.append("and sales_date >= :startTime ");
-        sql.append("and sales_date < :endTime ");
-        sql.append("group by m.manager_id, m.manager_name,c.customer_area ");
-        sql.append("order by c.customer_area ");
+        sql.append("select s.manager_id as managerId,s.manager_name as managerName,");
+        sql.append("sum(case when s.sales_oil like '%汽油%' then s.sales_count else 0 end) totalOfGas,");
+        sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) totalOfDiesel ");
+        sql.append("from (");
+        sql.append("select s.* from sales s ");
+        sql.append("where sales_station = '#' ");
+        sql.append("and s.customer_id in (select customer_id from private_station) ");
+        sql.append("union all ");
+        sql.append("select s.* from sales s where s.is_transfer = '1') as s where 1=1 ");
 
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startSalesDate ");
+                params.put("startSalesDate", df.format(condition.getStartSalesDate()));
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endSalesDate ");
+                params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+        }
+        sql.append("group by s.manager_id,s.manager_name");
         Query query = this.entityManager.createNativeQuery(sql.toString());
-        query.setParameter("startTime", startTime);
-        query.setParameter("endTime", endTime);
+        QueryUtils.setParams(query, params);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
     }
