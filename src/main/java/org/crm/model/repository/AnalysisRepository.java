@@ -17,4 +17,14 @@ public interface AnalysisRepository {
 
     List<Map<String, Object>> findManagerSales(SalesDTO condition);
 
+    List<Map<String, Object>> findByStationAndArea(SalesDTO condition, int firstResult, int maxResults);
+
+    int findCountByStationsAndArea(SalesDTO condition);
+
+    List<Map<String, Object>> findByManagerAndOilsCategory(SalesDTO condition);
+
+    Map<String, Object> findBySalesCountRange(SalesDTO condition);
+
+    List<Map<String, Object>> findByCustomerSalesCount(SalesDTO condition);
+
 }

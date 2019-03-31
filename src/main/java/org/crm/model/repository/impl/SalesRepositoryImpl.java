@@ -29,6 +29,7 @@ public class SalesRepositoryImpl implements SalesRepository {
     public List<?> findByCondition(SalesDTO condition, int fistResult, int maxResults) {
         StringBuilder hql = new StringBuilder("select s from Sales s where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
+        hql.append("order by s.salesDate desc");
         Query query = this.entityManager.createQuery(hql.toString());
         QueryUtils.setParams(query, params);
         query.setFirstResult(fistResult);

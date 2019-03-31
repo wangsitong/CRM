@@ -3,6 +3,7 @@ package org.crm.model.repository.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.crm.common.QueryUtils;
 import org.crm.model.dto.SalesDTO;
+import org.crm.model.entity.Sales;
 import org.crm.model.repository.AnalysisRepository;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
@@ -177,6 +178,160 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
             }
         }
         sql.append("group by s.manager_id,s.manager_name");
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
+    public List<Map<String, Object>> findByStationAndArea(SalesDTO condition, int firstResult, int maxResults) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT s.customer_id customerId, s.customer_name customerName,p.customer_area area,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
+        sql.append("SUM(s.sales_count) total ");
+        sql.append("FROM sales s ");
+        sql.append("LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
+        sql.append("WHERE s.customer_id IN (SELECT customer_id FROM private_station) ");
+
+        Map<String, Object> params = this.setQueryParamsByStationsAndArea(sql, condition);
+        sql.append("GROUP BY  s.customer_id,s.customer_name,p.customer_area ");
+        sql.append("order by p.customer_area,total desc ");
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+        return query.getResultList();
+    }
+
+    public int findCountByStationsAndArea(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select count(a.customerId) from (");
+        sql.append("SELECT s.customer_id customerId, s.customer_name customerName,p.customer_area area,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
+        sql.append("SUM(s.sales_count) total ");
+        sql.append("FROM sales s ");
+        sql.append("LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
+        sql.append("WHERE s.customer_id IN (SELECT customer_id FROM private_station) ");
+
+        Map<String, Object> params = this.setQueryParamsByStationsAndArea(sql, condition);
+        sql.append("GROUP BY  s.customer_id,s.customer_name,p.customer_area ");
+        sql.append("order by p.customer_area) as a");
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        return ((Number)query.getSingleResult()).intValue();
+    }
+
+    private Map<String, Object> setQueryParamsByStationsAndArea(StringBuilder sql, SalesDTO condition) {
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startSalesDate ");
+                params.put("startSalesDate", df.format(condition.getStartSalesDate()));
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endSalesDate ");
+                params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+            if (StringUtils.isNotBlank(condition.getSalesArea())) {
+                sql.append("and p.customer_area = :area ");
+                params.put("area", condition.getSalesArea());
+            }
+        }
+        return params;
+    }
+
+    public List<Map<String, Object>> findByManagerAndOilsCategory(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT s.manager_id managerId,s.manager_name managerName,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
+        sql.append("SUM(s.sales_count) total ");
+        sql.append("FROM sales s WHERE sales_channel  <> '零售' ");
+
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startSalesDate ");
+                params.put("startSalesDate", df.format(condition.getStartSalesDate()));
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endSalesDate ");
+                params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+        }
+        sql.append("GROUP BY s.manager_id,s.manager_name");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
+    public Map<String, Object> findBySalesCountRange(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT SUM(CASE WHEN  t.total  >= 2000 THEN 1 ELSE 0 END) t0,");
+        sql.append("SUM(CASE WHEN t.total < 2000 AND t.total >= 1500 THEN 1 ELSE 0 END) t1,");
+        sql.append("SUM(CASE WHEN t.total < 1500 AND t.total >= 1200 THEN 1 ELSE 0 END) t2,");
+        sql.append("SUM(CASE WHEN t.total < 1200 AND t.total >= 1000 THEN 1 ELSE 0 END) t3,");
+        sql.append("SUM(CASE WHEN t.total < 1000 AND t.total >= 500 THEN 1 ELSE 0 END) t4,");
+        sql.append("SUM(CASE WHEN t.total < 500 AND t.total >= 200 THEN 1 ELSE 0 END) t5,");
+        sql.append("SUM(CASE WHEN t.total < 200 AND t.total >= 0 THEN 1 ELSE 0 END) t6 ");
+        sql.append("FROM (SELECT s.customer_id ,s.customer_name,");
+        sql.append("SUM(s.sales_count) AS total ");
+        sql.append("FROM sales s WHERE sales_channel <> '零售' ");
+
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startSalesDate ");
+                params.put("startSalesDate", df.format(condition.getStartSalesDate()));
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endSalesDate ");
+                params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+        }
+
+        sql.append("GROUP BY s.customer_id ,s.customer_name ");
+        sql.append("ORDER BY  total DESC) t");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        List<?> dataList = query.getResultList();
+        if (dataList != null && !dataList.isEmpty()) {
+            return (Map<String, Object>) dataList.get(0);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> findByCustomerSalesCount(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT s.customer_id as customerId,s.customer_name customerName,");
+        sql.append("SUM(s.sales_count) AS total ");
+        sql.append("FROM sales s WHERE s.sales_channel  <> '零售' ");
+
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startSalesDate ");
+                params.put("startSalesDate", df.format(condition.getStartSalesDate()));
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endSalesDate ");
+                params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+        }
+        sql.append("GROUP BY s.customer_id,s.customer_name ");
+        sql.append("ORDER BY total DESC");
+
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);

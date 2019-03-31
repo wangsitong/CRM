@@ -2,6 +2,7 @@ package org.crm.controller;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.crm.common.PageDTO;
+import org.crm.common.PageInfo;
 import org.crm.common.ResponseUtils;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.entity.ManagerTask;
@@ -146,7 +147,33 @@ public class AnalysisController {
         }
 
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
+    }
 
+    @RequestMapping("/sales/stationsAndArea")
+    public Object getByStationAndArea(SalesDTO condition,
+                                      @RequestParam(value = "page", defaultValue = "1", required = false) int page,
+                                      @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        PageDTO dto = this.analysisService.getByStationAndArea(condition, page, pageSize);
+        PageInfo pageInfo = new PageInfo(page, pageSize, dto.getTotal());
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
+    }
+
+    @RequestMapping("/sales/managerAndOilsCategory")
+    public Object getByManagerAndOilsCategory(SalesDTO condition) {
+        Object data = this.analysisService.getByManagerAndOilsCategory(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
+    @RequestMapping("/sales/salesCountRange")
+    public Object getBySalesCountRange(SalesDTO condition) {
+        Object data = this.analysisService.getBySalesCountRange(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
+    @RequestMapping("/sales/customerSalesCount")
+    public Object getByCustomerSalesCount(SalesDTO condition) {
+        Object data = this.analysisService.getByCustomerSalesCount(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
     }
 
 }

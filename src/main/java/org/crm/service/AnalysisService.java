@@ -1,5 +1,6 @@
 package org.crm.service;
 
+import org.crm.common.PageDTO;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.repository.AnalysisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,4 +54,22 @@ public class AnalysisService {
         return this.analysisRepository.findManagerSales(condition);
     }
 
+    public PageDTO<?> getByStationAndArea(SalesDTO condition, int page, int pageSize) {
+        int total = this.analysisRepository.findCountByStationsAndArea(condition);
+        List<?> dataList = this.analysisRepository.findByStationAndArea(condition, (page - 1) * pageSize, pageSize);
+
+        return new PageDTO<>(total, dataList);
+    }
+
+    public List<Map<String, Object>> getByManagerAndOilsCategory(SalesDTO condition) {
+        return this.analysisRepository.findByManagerAndOilsCategory(condition);
+    }
+
+    public Map<String, Object> getBySalesCountRange(SalesDTO condition) {
+        return this.analysisRepository.findBySalesCountRange(condition);
+    }
+
+    public List<Map<String, Object>> getByCustomerSalesCount(SalesDTO condition) {
+        return this.analysisRepository.findByCustomerSalesCount(condition);
+    }
 }
