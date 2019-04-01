@@ -5,10 +5,10 @@ import org.crm.common.PageDTO;
 import org.crm.common.PageInfo;
 import org.crm.common.ResponseUtils;
 import org.crm.model.dto.SalesDTO;
-import org.crm.model.entity.ManagerTask;
+import org.crm.model.entity.SalesPlan;
 import org.crm.service.AnalysisService;
 import org.crm.service.DemandService;
-import org.crm.service.ManagerTaskService;
+import org.crm.service.SalesPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +28,7 @@ public class AnalysisController {
     @Autowired
     private DemandService demandService;
     @Autowired
-    private ManagerTaskService managerTaskService;
+    private SalesPlanService managerTaskService;
 
     @RequestMapping("/salesCount")
     public Object salesCount(SalesDTO condition) {
@@ -135,11 +135,11 @@ public class AnalysisController {
 
         for (Map<String, Object> data : dataList) {
             String managerId = data.get("managerId").toString();
-            ManagerTask taskCondition = new ManagerTask();
-            taskCondition.setManagerId(managerId);
+            SalesPlan taskCondition = new SalesPlan();
+            taskCondition.setExecutorId(managerId);
             taskCondition.setDate(d);
             PageDTO dto = this.managerTaskService.getList(taskCondition, 1, 10);
-            List<ManagerTask> managerTasks = dto.getDataList();
+            List<SalesPlan> managerTasks = dto.getDataList();
             if (managerTasks != null && managerTasks.size() > 0) {
                 Map<String, String> task = BeanUtils.describe(managerTasks.get(0));
                 data.putAll(task);

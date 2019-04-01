@@ -2,8 +2,8 @@ package org.crm.model.repository.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crm.common.QueryUtils;
-import org.crm.model.entity.ManagerTask;
-import org.crm.model.repository.ManagerTaskRepository;
+import org.crm.model.entity.SalesPlan;
+import org.crm.model.repository.SalesPlanRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -15,17 +15,17 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class ManagerTaskRepositoryImpl implements ManagerTaskRepository {
+public class SalesPlanRepositoryImpl implements SalesPlanRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public List<ManagerTask> find(ManagerTask condition, int firstResult, int maxResults) {
+    public List<SalesPlan> find(SalesPlan condition, int firstResult, int maxResults) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select * from manager_task where 1=1 ");
+        sql.append("select * from sales_plan where 1=1 ");
         Map<String, Object> params = this.getQueryParams(sql, condition);
-        Query query = this.entityManager.createNativeQuery(sql.toString(), ManagerTask.class);
+        Query query = this.entityManager.createNativeQuery(sql.toString(), SalesPlan.class);
         QueryUtils.setParams(query, params);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
@@ -33,21 +33,21 @@ public class ManagerTaskRepositoryImpl implements ManagerTaskRepository {
     }
 
     @Override
-    public int findCount(ManagerTask condition) {
+    public int findCount(SalesPlan condition) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select count(*) from manager_task where 1=1 ");
+        sql.append("select count(*) from sales_plan where 1=1 ");
         Map<String, Object> params = this.getQueryParams(sql, condition);
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
         return ((Number)query.getSingleResult()).intValue();
     }
 
-    private Map<String, Object> getQueryParams(StringBuilder sql, ManagerTask condition) {
+    private Map<String, Object> getQueryParams(StringBuilder sql, SalesPlan condition) {
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
-            if (StringUtils.isNotBlank(condition.getManagerId())) {
-                sql.append("and manager_id = :managerId ");
-                params.put("managerId", condition.getManagerId());
+            if (StringUtils.isNotBlank(condition.getExecutorId())) {
+                sql.append("and executor_id = :executorId ");
+                params.put("executorId", condition.getExecutorId());
             }
             if (condition.getDate() != null) {
                 sql.append("and date_format(date, '%Y%m') = :date ");
@@ -58,25 +58,25 @@ public class ManagerTaskRepositoryImpl implements ManagerTaskRepository {
     }
 
     @Override
-    public void insert(ManagerTask instance) {
+    public void insert(SalesPlan instance) {
         this.entityManager.persist(instance);
     }
 
     @Override
-    public void update(ManagerTask instance) {
+    public void update(SalesPlan instance) {
         this.entityManager.merge(instance);
     }
 
     @Override
     public void delete(String id) {
-        this.entityManager.remove(this.entityManager.find(ManagerTask.class, id));
+        this.entityManager.remove(this.entityManager.find(SalesPlan.class, id));
     }
 
     @Override
-    public void deleteByManagerId(String managerId) {
-        String hql = "delete from ManagerTask where managerId = :managerId";
+    public void deleteByExecutorId(String executorId) {
+        String hql = "delete from SalesPlan where executorId = :executorId";
         Query query = this.entityManager.createQuery(hql);
-        query.setParameter("managerId", managerId);
+        query.setParameter("executorId", executorId);
         query.executeUpdate();
     }
 }

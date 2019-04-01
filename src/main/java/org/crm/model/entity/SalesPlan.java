@@ -10,16 +10,16 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name = "manager_task")
-public class ManagerTask {
+@Table(name = "sales_plan")
+public class SalesPlan {
 
     @Id
     @Column(name = "id", length = 40, unique = true, nullable = false)
     private String id;
-    @Column(name = "manager_id", length = 50, nullable = false)
-    private String managerId;
-    @Column(name = "manager_name", length = 250, nullable = false)
-    private String managerName;
+    @Column(name = "executor_id", length = 50, nullable = false)
+    private String executorId;
+    @Column(name = "executor_name", length = 250, nullable = false)
+    private String executorName;
     @Column(name = "date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -28,6 +28,8 @@ public class ManagerTask {
     private Double gas;
     @Column(name = "diesel")
     private Double diesel;
+    @Column(name = "type", length = 1)
+    private String type;
 
     public String getId() {
         return id;
@@ -37,12 +39,20 @@ public class ManagerTask {
         this.id = id;
     }
 
-    public String getManagerId() {
-        return managerId;
+    public String getExecutorId() {
+        return executorId;
     }
 
-    public void setManagerId(String managerId) {
-        this.managerId = managerId;
+    public void setExecutorId(String executorId) {
+        this.executorId = executorId;
+    }
+
+    public String getExecutorName() {
+        return executorName;
+    }
+
+    public void setExecutorName(String executorName) {
+        this.executorName = executorName;
     }
 
     public Date getDate() {
@@ -69,11 +79,11 @@ public class ManagerTask {
         this.diesel = diesel;
     }
 
-    public String getManagerName() {
-        return managerName;
+    public String getType() {
+        return type;
     }
 
-    public void setManagerName(String managerName) {
-        this.managerName = managerName;
+    public void setType(String type) {
+        this.type = type;
     }
 }
