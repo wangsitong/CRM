@@ -176,4 +176,10 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
     }
 
+    @RequestMapping("/sales/managerAndOilsCategoryPerMonth")
+    public Object getByManagerAndOilsCategoryPerMonth(@RequestParam("year") int year) {
+        Object data = this.analysisService.getByManagerAndOilsCategoryPerMonth(year);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
 }

@@ -27,4 +27,6 @@ public interface AnalysisRepository {
 
     List<Map<String, Object>> findByCustomerSalesCount(SalesDTO condition);
 
+    List<Map<String, Object>> findByManagerAndOilsCategoryPerMonth(int year);
+
 }

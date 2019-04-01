@@ -338,4 +338,41 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         return query.getResultList();
     }
 
+    public List<Map<String, Object>> findByManagerAndOilsCategoryPerMonth(int year) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT s.manager_id managerId, s.manager_name managerName,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '01' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t1,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '01' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t1_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '02' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t2,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '02' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t2_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '03' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t3,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '03' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t3_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '04' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t4,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '04' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t4_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '05' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t5,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '05' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t5_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '06' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t6,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '06' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t6_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '07' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t7,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '07' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t7_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '08' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t8,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '08' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t8_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '09' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t9,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '09' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t9_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '10' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t10,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '10' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t10_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '11' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t11,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '11' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t11_,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t12,");
+        sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t12_ ");
+        sql.append("FROM sales s WHERE s.sales_date>= :startDate AND s.sales_date <= :endDate AND sales_channel <> '零售' ");
+        sql.append("GROUP BY s.manager_id, s.manager_name");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.setParameter("startDate", year + "-01-01");
+        query.setParameter("endDate", year + "-12-31");
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
 }
