@@ -33,4 +33,6 @@ public interface AnalysisRepository {
 
     List<Map<String, Object>> findBySelfSalesPerDays(SalesDTO condition);
 
+    List<Map<String, Object>> findByCustomerDemandExecuteRate(SalesDTO condition);
+
 }

@@ -194,4 +194,10 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
     }
 
+    @RequestMapping("/sales/customerDemandExecuteRate")
+    public Object getByCustomerDemandExecuteRate(SalesDTO condition) {
+        Object data = this.analysisService.getByCustomerDemandExecuteRate(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
 }

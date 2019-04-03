@@ -85,4 +85,8 @@ public class AnalysisService {
         return this.analysisRepository.findBySelfSalesPerDays(condition);
     }
 
+    public List<Map<String, Object>> getByCustomerDemandExecuteRate(SalesDTO condition) {
+        return this.analysisRepository.findByCustomerDemandExecuteRate(condition);
+    }
+
 }

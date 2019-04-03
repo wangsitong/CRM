@@ -437,4 +437,37 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         return query.getResultList();
     }
 
+    @Override
+    public List<Map<String, Object>> findByCustomerDemandExecuteRate(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT t.customer_id customerId,t.customer_name customerName,t.customer_area area,t.gas,t.diesel,t.total,");
+        sql.append("TRUNCATE(c.customer_demand_gas/12,2) AS gas_plan,TRUNCATE(c.customer_demand_diesel/12,2) AS diesel_plan,");
+        sql.append("CONCAT(TRUNCATE(t.gas/(c.customer_demand_gas/12)*100,2), '%') AS gas_demand_rate,");
+        sql.append("CONCAT(TRUNCATE(t.diesel/(c.customer_demand_diesel/12)*100,2), '%') AS diesel_demand_rate ");
+        sql.append("FROM customer_demand c RIGHT JOIN ");
+        sql.append("(SELECT s.customer_id,s.customer_name,p.customer_area,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
+        sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
+        sql.append("SUM(s.sales_count) total ");
+        sql.append("FROM sales s LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
+        sql.append("WHERE s.customer_id IN (SELECT customer_id FROM private_station) ");
+        sql.append("AND DATE_FORMAT(s.sales_date,'%Y%m') = :date ");
+        sql.append("GROUP BY s.customer_id, s.customer_name,p.customer_area) t ");
+        sql.append("ON c.customer_id = t.customer_id where 1=1 ");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("date", (new SimpleDateFormat("yyyyMM")).format(condition.getStartSalesDate()));
+        if (condition != null) {
+            if (condition.getCustomerId() != null) {
+                sql.append("and t.customer_id = :customerId ");
+                params.put("customerId", condition.getCustomerId());
+            }
+        }
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
 }
