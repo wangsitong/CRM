@@ -36,6 +36,10 @@ public class Sales implements Serializable {
     private Double salesPrice;
     @Column(name = "is_transfer", length = 10)
     private String transfer;
+    @Column(name = "original_manager_id", length = 40)
+    private String originalManagerId;
+    @Column(name = "original_manager_name", length = 250)
+    private String originalManagerName;
 
     public String getId() {
         return id;
@@ -131,5 +135,21 @@ public class Sales implements Serializable {
 
     public void setTransfer(String transfer) {
         this.transfer = transfer;
+    }
+
+    public String getOriginalManagerId() {
+        return originalManagerId;
+    }
+
+    public void setOriginalManagerId(String originalManagerId) {
+        this.originalManagerId = originalManagerId;
+    }
+
+    public String getOriginalManagerName() {
+        return originalManagerName;
+    }
+
+    public void setOriginalManagerName(String originalManagerName) {
+        this.originalManagerName = originalManagerName;
     }
 }

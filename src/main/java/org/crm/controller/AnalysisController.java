@@ -28,7 +28,7 @@ public class AnalysisController {
     @Autowired
     private DemandService demandService;
     @Autowired
-    private SalesPlanService managerTaskService;
+    private SalesPlanService salesPlanService;
 
     @RequestMapping("/salesCount")
     public Object salesCount(SalesDTO condition) {
@@ -69,7 +69,7 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList);
     }
 
-    @RequestMapping("/salesArea")
+    /*@RequestMapping("/salesArea")
     public Object salesArea(@RequestParam("date") String date) throws ParseException {
         DateFormat df = new SimpleDateFormat("yyyy-MM");
         Date d = df.parse(date);
@@ -107,6 +107,12 @@ public class AnalysisController {
         });
 
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, resultMap.values());
+    }*/
+
+    @RequestMapping("/sales/area")
+    public Object salesArea(SalesDTO condition) {
+        Object data = this.analysisService.getBySalesArea(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
     }
 
     @RequestMapping("/demand")
@@ -138,7 +144,7 @@ public class AnalysisController {
             SalesPlan taskCondition = new SalesPlan();
             taskCondition.setExecutorId(managerId);
             taskCondition.setDate(d);
-            PageDTO dto = this.managerTaskService.getList(taskCondition, 1, 10);
+            PageDTO dto = this.salesPlanService.getList(taskCondition, 1, 10);
             List<SalesPlan> managerTasks = dto.getDataList();
             if (managerTasks != null && managerTasks.size() > 0) {
                 Map<String, String> task = BeanUtils.describe(managerTasks.get(0));
@@ -179,6 +185,12 @@ public class AnalysisController {
     @RequestMapping("/sales/managerAndOilsCategoryPerMonth")
     public Object getByManagerAndOilsCategoryPerMonth(@RequestParam("year") int year) {
         Object data = this.analysisService.getByManagerAndOilsCategoryPerMonth(year);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
+    @RequestMapping("/sales/selfSalesPerDays")
+    public Object getBySelfSalesPerDays(SalesDTO condition) {
+        Object data = this.analysisService.getBySelfSalesPerDays(condition);
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
     }
 

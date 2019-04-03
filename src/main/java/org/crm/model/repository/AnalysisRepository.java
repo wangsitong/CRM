@@ -29,4 +29,8 @@ public interface AnalysisRepository {
 
     List<Map<String, Object>> findByManagerAndOilsCategoryPerMonth(int year);
 
+    List<Map<String, Object>> findBySalesArea(SalesDTO condition);
+
+    List<Map<String, Object>> findBySelfSalesPerDays(SalesDTO condition);
+
 }

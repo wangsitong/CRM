@@ -77,4 +77,12 @@ public class AnalysisService {
         return this.analysisRepository.findByManagerAndOilsCategoryPerMonth(year);
     }
 
+    public List<Map<String, Object>> getBySalesArea(SalesDTO condition) {
+        return this.analysisRepository.findBySalesArea(condition);
+    }
+
+    public List<Map<String, Object>> getBySelfSalesPerDays(SalesDTO condition) {
+        return this.analysisRepository.findBySelfSalesPerDays(condition);
+    }
+
 }
