@@ -34,7 +34,7 @@ public class Sales implements Serializable {
     private Double salesCount;
     @Column(name = "sales_price")
     private Double salesPrice;
-    @Column(name = "is_transfer", length = 10)
+    @Column(name = "is_transfer", length = 1)
     private String transfer;
     @Column(name = "original_manager_id", length = 40)
     private String originalManagerId;

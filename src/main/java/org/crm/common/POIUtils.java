@@ -34,4 +34,11 @@ public class POIUtils {
         return cell.getStringCellValue();
     }
 
+    public static String getStringCellValue(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        return (String) getCellValue(cell);
+    }
+
 }

@@ -200,4 +200,13 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
     }
 
+    @RequestMapping("/sales/customer/alarm")
+    public Object customerSalesAlarm(
+            @RequestParam(value = "page", defaultValue = "1", required = false) int page,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        PageDTO<?> dto = this.analysisService.getCustomerByLastSalesDate(page, pageSize);
+        PageInfo pageInfo = new PageInfo(page, pageSize, dto.getTotal());
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
+    }
+
 }

@@ -7,7 +7,9 @@ import org.crm.model.repository.SalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SalesService {
@@ -21,6 +23,44 @@ public class SalesService {
 
         PageDTO dto = new PageDTO(total, dataList);
         return dto;
+    }
+
+    public Sales getById(String id) {
+        return this.salesRepository.findById(id);
+    }
+
+    @Transactional
+    public void save(List<Sales> dataList) {
+        for (Sales sales : dataList) {
+            List<Sales> list = this.salesRepository.findExact(sales);
+            if (list != null && !list.isEmpty()) {
+                continue;
+            }
+
+            sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            this.salesRepository.save(sales);
+        }
+    }
+
+    @Transactional
+    public void setTransfer(String id, String managerId, String managerName) {
+        Sales sales = this.salesRepository.findById(id);
+        sales.setTransfer("1");
+        sales.setOriginalManagerId(managerId);
+        sales.setOriginalManagerName(managerName);
+        this.salesRepository.save(sales);
+    }
+
+    @Transactional
+    public void removeTransfer(String id) {
+        String[] ids = id.split(",");
+        for (String _id : ids) {
+            Sales sales = this.salesRepository.findById(_id);
+            sales.setTransfer(null);
+            sales.setOriginalManagerId(null);
+            sales.setOriginalManagerName(null);
+            this.salesRepository.save(sales);
+        }
     }
 
 }

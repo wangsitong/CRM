@@ -35,4 +35,8 @@ public interface AnalysisRepository {
 
     List<Map<String, Object>> findByCustomerDemandExecuteRate(SalesDTO condition);
 
+    List<Map<String, Object>> findCustomerByLastSalesDate(int firstResult, int maxResults);
+
+    int findCountByLastSalesDate();
+
 }

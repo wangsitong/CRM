@@ -23,7 +23,7 @@ public class Customer implements Serializable {
     private String area;
     @Column(name = "manager_id", length = 40)
     private String managerId;
-    @Column(name = "manager_name", length = 250)
+    @Column(name = "customer_manager", length = 250)
     private String managerName;
     @Column(name = "customer_sales_channel", length = 10)
     private String salesChannel;

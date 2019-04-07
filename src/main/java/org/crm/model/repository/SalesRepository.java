@@ -13,6 +13,8 @@ public interface SalesRepository {
 
     int findCount(SalesDTO condition);
 
+    List<Sales> findExact(Sales condition);
+
     void save(Sales sales);
 
     void delete(String id);

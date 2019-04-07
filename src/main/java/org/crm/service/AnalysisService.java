@@ -89,4 +89,10 @@ public class AnalysisService {
         return this.analysisRepository.findByCustomerDemandExecuteRate(condition);
     }
 
+    public PageDTO<?> getCustomerByLastSalesDate(int page, int pageSize) {
+        int total = this.analysisRepository.findCountByLastSalesDate();
+        List<?> dataList = this.analysisRepository.findCustomerByLastSalesDate((page - 1) * pageSize, pageSize);
+        return new PageDTO<>(total, dataList);
+    }
+
 }

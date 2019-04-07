@@ -470,4 +470,32 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         return query.getResultList();
     }
 
+    public List<Map<String, Object>> findCustomerByLastSalesDate(int firstResult, int maxResults) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select s.customer_id as customerId,s.customer_name as customerName, max(s.sales_date) lastDate ");
+        sql.append("from sales s ");
+        sql.append("group by s.customer_id,s.customer_name ");
+        sql.append("having lastdate < date_add(now(), interval -30 day) ");
+        sql.append("order by lastDate desc");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
+    public int findCountByLastSalesDate() {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select count(*) from (");
+        sql.append("select s.customer_id as customerId,s.customer_name as customerName, max(s.sales_date) lastDate ");
+        sql.append("from sales s ");
+        sql.append("group by s.customer_id,s.customer_name ");
+        sql.append("having lastdate < date_add(now(), interval -30 day) ");
+        sql.append(") a");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        return ((Number)query.getSingleResult()).intValue();
+    }
+
 }
