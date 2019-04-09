@@ -49,9 +49,12 @@ public class SalesImpController {
             // e.printStackTrace();
             try {
                 workbook = new XSSFWorkbook(file.getInputStream());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+        if (workbook == null) {
+            throw new Exception("文件解析错误!");
         }
 
         List<Sales> dataList = new ArrayList<>();
