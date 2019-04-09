@@ -15,6 +15,8 @@ public interface SalesRepository {
 
     List<Sales> findExact(Sales condition);
 
+    List<Sales> findByNeedTransfer(SalesDTO condition);
+
     void save(Sales sales);
 
     void delete(String id);

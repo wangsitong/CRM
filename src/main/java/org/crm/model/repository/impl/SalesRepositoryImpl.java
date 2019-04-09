@@ -121,6 +121,20 @@ public class SalesRepositoryImpl implements SalesRepository {
         return query.getResultList();
     }
 
+    public List<Sales> findByNeedTransfer(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select s from Sales s ");
+        sql.append("where s.salesChannel = '零售' and s.salesStation <> '#' ");
+        sql.append("and s.customerId in (");
+        sql.append("select customerId from Sales where salesChannel <> '零售') ");
+
+        Map<String, Object> params = this.setQueryParams(condition, sql);
+
+        Query query = this.entityManager.createQuery(sql.toString());
+        QueryUtils.setParams(query, params);
+        return query.getResultList();
+    }
+
     @Override
     public void save(Sales sales) {
         this.entityManager.persist(sales);

@@ -1,5 +1,6 @@
 package org.crm.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.crm.common.PageDTO;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.entity.Sales;
@@ -29,6 +30,10 @@ public class SalesService {
         return this.salesRepository.findById(id);
     }
 
+    public List<Sales> getByNeedTransfer(SalesDTO condition) {
+        return this.salesRepository.findByNeedTransfer(condition);
+    }
+
     @Transactional
     public void save(List<Sales> dataList) {
         for (Sales sales : dataList) {
@@ -38,6 +43,16 @@ public class SalesService {
             }
 
             sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            this.salesRepository.save(sales);
+        }
+    }
+
+    @Transactional
+    public void saveOrUpdate(List<Sales> dataList) {
+        for (Sales sales : dataList) {
+            if (StringUtils.isBlank(sales.getId())) {
+                sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            }
             this.salesRepository.save(sales);
         }
     }
