@@ -30,6 +30,12 @@ public class SalesPlanController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public Object save(SalesPlan instance) {
+        if (StringUtils.isBlank(instance.getId())) {
+            if (this.salesPlanService.getTotal(instance) > 0) {
+                return ResponseUtils.error("数据已存在");
+            }
+        }
+
         this.salesPlanService.save(instance);
         return ResponseUtils.success();
     }

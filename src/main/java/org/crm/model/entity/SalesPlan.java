@@ -16,9 +16,9 @@ public class SalesPlan {
     @Id
     @Column(name = "id", length = 40, unique = true, nullable = false)
     private String id;
-    @Column(name = "executor_id", length = 50, nullable = false)
+    @Column(name = "executor_id", length = 50)
     private String executorId;
-    @Column(name = "executor_name", length = 250, nullable = false)
+    @Column(name = "executor_name", length = 250)
     private String executorName;
     @Column(name = "date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")

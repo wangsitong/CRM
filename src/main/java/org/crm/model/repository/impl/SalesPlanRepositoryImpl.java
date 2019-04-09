@@ -25,6 +25,7 @@ public class SalesPlanRepositoryImpl implements SalesPlanRepository {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from sales_plan where 1=1 ");
         Map<String, Object> params = this.getQueryParams(sql, condition);
+        sql.append("order by date desc");
         Query query = this.entityManager.createNativeQuery(sql.toString(), SalesPlan.class);
         QueryUtils.setParams(query, params);
         query.setFirstResult(firstResult);
@@ -52,6 +53,10 @@ public class SalesPlanRepositoryImpl implements SalesPlanRepository {
             if (condition.getDate() != null) {
                 sql.append("and date_format(date, '%Y%m') = :date ");
                 params.put("date", (new SimpleDateFormat("yyyyMM").format(condition.getDate())));
+            }
+            if (StringUtils.isNotBlank(condition.getType())) {
+                sql.append("and type = :type ");
+                params.put("type", condition.getType());
             }
         }
         return params;

@@ -2,6 +2,7 @@ package org.crm.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crm.common.PageDTO;
+import org.crm.model.entity.Sales;
 import org.crm.model.entity.SalesPlan;
 import org.crm.model.repository.SalesPlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,10 @@ public class SalesPlanService {
 
         PageDTO dto = new PageDTO(total, dataList);
         return dto;
+    }
+
+    public int getTotal(SalesPlan condition) {
+        return this.salesPlanRepository.findCount(condition);
     }
 
     @Transactional
