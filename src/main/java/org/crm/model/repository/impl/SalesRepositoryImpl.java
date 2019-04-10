@@ -6,6 +6,8 @@ import org.crm.common.QueryUtils;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.entity.Sales;
 import org.crm.model.repository.SalesRepository;
+import org.hibernate.query.internal.NativeQueryImpl;
+import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -28,10 +30,18 @@ public class SalesRepositoryImpl implements SalesRepository {
 
     @Override
     public List<?> findByCondition(SalesDTO condition, int fistResult, int maxResults) {
-        StringBuilder hql = new StringBuilder("select s from Sales s where 1=1 ");
+        StringBuilder hql = new StringBuilder();
+        hql.append("select s.id,s.sales_channel salesChannel,s.sales_date salesDate,s.customer_id customerId,");
+        hql.append("s.customer_name customerName,s.sales_oil salesOil,s.manager_id managerId,");
+        hql.append("s.manager_name managerName,s.sales_station salesStation,");
+        hql.append("s.sales_count salesCount,s.sales_price salesPrice,s.is_transfer transfer,");
+        hql.append("s.original_manager_id originalManagerId,s.original_manager_name originalManagerName,");
+        hql.append("c.customer_area as salesArea from sales s ");
+        hql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
-        hql.append("order by s.salesDate desc");
-        Query query = this.entityManager.createQuery(hql.toString());
+        hql.append("order by s.sales_date desc");
+        Query query = this.entityManager.createNativeQuery(hql.toString());
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.aliasToBean(SalesDTO.class));
         QueryUtils.setParams(query, params);
         query.setFirstResult(fistResult);
         query.setMaxResults(maxResults);
@@ -40,9 +50,11 @@ public class SalesRepositoryImpl implements SalesRepository {
 
     @Override
     public int findCount(SalesDTO condition) {
-        StringBuilder hql = new StringBuilder("select count(s) from Sales s where 1=1 ");
+        StringBuilder hql = new StringBuilder();
+        hql.append("select count(s.id) from sales s ");
+        hql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
-        Query query = this.entityManager.createQuery(hql.toString());
+        Query query = this.entityManager.createNativeQuery(hql.toString());
         QueryUtils.setParams(query, params);
         return ((Number)query.getSingleResult()).intValue();
     }
@@ -51,32 +63,36 @@ public class SalesRepositoryImpl implements SalesRepository {
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
             if (StringUtils.isNotBlank(condition.getCustomerId())) {
-                hql.append("and customerId = :customerId ");
+                hql.append("and s.customer_d = :customerId ");
                 params.put("customerId", condition.getCustomerId());
             }
             if (StringUtils.isNotBlank(condition.getSalesStation())) {
-                hql.append("and station like :station ");
+                hql.append("and s.sales_station like :station ");
                 params.put("station", "%" + condition.getSalesStation() + "%");
             }
             if (StringUtils.isNotBlank(condition.getSalesChannel())) {
-                hql.append("and salesChannel = :salesChannel ");
+                hql.append("and s.sales_channel = :salesChannel ");
                 params.put("salesChannel", condition.getSalesChannel());
             }
             if (condition.getStartSalesDate() != null) {
-                hql.append("and salesDate >= :startDate ");
+                hql.append("and s.sales_date >= :startDate ");
                 params.put("startDate", condition.getStartSalesDate());
             }
             if (condition.getEndSalesDate() != null) {
-                hql.append("and salesDate <= :endDate ");
+                hql.append("and s.sales_date <= :endDate ");
                 params.put("endDate", condition.getEndSalesDate());
             }
             if (StringUtils.isNotBlank(condition.getSalesStationNotEquals())) {
-                hql.append("and salesStation <> :stationNotEquals ");
+                hql.append("and s.sales_station <> :stationNotEquals ");
                 params.put("stationNotEquals", condition.getSalesStationNotEquals());
             }
             if (StringUtils.isNotBlank(condition.getTransfer())) {
-                hql.append("and transfer = :transfer ");
+                hql.append("and s.is_transfer = :transfer ");
                 params.put("transfer", condition.getTransfer());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesArea())) {
+                hql.append("and c.customer_area = :area ");
+                params.put("area", condition.getSalesArea());
             }
         }
         return params;
