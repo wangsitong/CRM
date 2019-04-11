@@ -36,7 +36,7 @@ public class SalesRepositoryImpl implements SalesRepository {
         hql.append("s.sales_count salesCount,s.sales_price salesPrice,s.is_transfer transfer,");
         hql.append("s.original_manager_id originalManagerId,s.original_manager_name originalManagerName,");
         hql.append("c.customer_area as customerArea from sales s ");
-        hql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
+        hql.append("left join private_station c on s.customer_id = c.customer_id where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
         hql.append("order by s.sales_date desc");
         Query query = this.entityManager.createNativeQuery(hql.toString());
@@ -51,7 +51,7 @@ public class SalesRepositoryImpl implements SalesRepository {
     public int findCount(SalesDTO condition) {
         StringBuilder hql = new StringBuilder();
         hql.append("select count(s.id) from sales s ");
-        hql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
+        hql.append("left join private_station c on s.customer_id = c.customer_id where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
         Query query = this.entityManager.createNativeQuery(hql.toString());
         QueryUtils.setParams(query, params);

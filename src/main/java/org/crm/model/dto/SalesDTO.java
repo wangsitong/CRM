@@ -17,7 +17,6 @@ public class SalesDTO extends Sales implements Serializable {
     private Date endSalesDate;
 
     private String customerArea;
-    private String stationArea;
 
     private Boolean transferIsNull;
 
@@ -43,14 +42,6 @@ public class SalesDTO extends Sales implements Serializable {
 
     public void setCustomerArea(String customerArea) {
         this.customerArea = customerArea;
-    }
-
-    public String getStationArea() {
-        return stationArea;
-    }
-
-    public void setStationArea(String stationArea) {
-        this.stationArea = stationArea;
     }
 
     public Date getStartSalesDate() {
