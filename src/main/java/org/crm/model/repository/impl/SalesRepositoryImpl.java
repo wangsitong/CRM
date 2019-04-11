@@ -1,7 +1,6 @@
 package org.crm.model.repository.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.util.StringUtil;
 import org.crm.common.QueryUtils;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.entity.Sales;
@@ -36,7 +35,7 @@ public class SalesRepositoryImpl implements SalesRepository {
         hql.append("s.manager_name managerName,s.sales_station salesStation,");
         hql.append("s.sales_count salesCount,s.sales_price salesPrice,s.is_transfer transfer,");
         hql.append("s.original_manager_id originalManagerId,s.original_manager_name originalManagerName,");
-        hql.append("c.customer_area as salesArea from sales s ");
+        hql.append("c.customer_area as customerArea from sales s ");
         hql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
         Map<String, Object> params = this.setQueryParams(condition, hql);
         hql.append("order by s.sales_date desc");
@@ -90,9 +89,9 @@ public class SalesRepositoryImpl implements SalesRepository {
                 hql.append("and s.is_transfer = :transfer ");
                 params.put("transfer", condition.getTransfer());
             }
-            if (StringUtils.isNotBlank(condition.getSalesArea())) {
+            if (StringUtils.isNotBlank(condition.getCustomerArea())) {
                 hql.append("and c.customer_area = :area ");
-                params.put("area", condition.getSalesArea());
+                params.put("area", condition.getCustomerArea());
             }
         }
         return params;

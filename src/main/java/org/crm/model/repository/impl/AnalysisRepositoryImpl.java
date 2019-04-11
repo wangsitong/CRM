@@ -3,7 +3,6 @@ package org.crm.model.repository.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.crm.common.QueryUtils;
 import org.crm.model.dto.SalesDTO;
-import org.crm.model.entity.Sales;
 import org.crm.model.repository.AnalysisRepository;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
@@ -209,7 +208,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     public int findCountByStationsAndArea(SalesDTO condition) {
         StringBuilder sql = new StringBuilder();
         sql.append("select count(a.customerId) from (");
-        sql.append("SELECT s.customer_id customerId, s.customer_name customerName,p.customer_area area,");
+        sql.append("SELECT s.customer_id customerId, s.customer_name customerName,p.customer_area customerArea,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
         sql.append("SUM(s.sales_count) total ");
@@ -237,9 +236,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 sql.append("and s.sales_date <= :endSalesDate ");
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
-            if (StringUtils.isNotBlank(condition.getSalesArea())) {
+            if (StringUtils.isNotBlank(condition.getCustomerArea())) {
                 sql.append("and p.customer_area = :area ");
-                params.put("area", condition.getSalesArea());
+                params.put("area", condition.getCustomerArea());
             }
         }
         return params;
@@ -398,6 +397,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
             if (condition.getEndSalesDate() != null) {
                 sql.append("and s.sales_date <= :endSalesDate ");
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
+            }
+            if (condition.isTransferIsNull() != null && condition.isTransferIsNull()) {
+                sql.append("and s.is_transfer is null ");
             }
         }
         sql.append("GROUP BY p.customer_area");

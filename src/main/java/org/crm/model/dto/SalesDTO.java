@@ -16,7 +16,10 @@ public class SalesDTO extends Sales implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endSalesDate;
 
-    private String salesArea;
+    private String customerArea;
+    private String stationArea;
+
+    private Boolean transferIsNull;
 
     public String getSalesStationNotEquals() {
         return salesStationNotEquals;
@@ -34,12 +37,20 @@ public class SalesDTO extends Sales implements Serializable {
         this.salesChannelNotEquals = salesChannelNotEquals;
     }
 
-    public String getSalesArea() {
-        return salesArea;
+    public String getCustomerArea() {
+        return customerArea;
     }
 
-    public void setSalesArea(String salesArea) {
-        this.salesArea = salesArea;
+    public void setCustomerArea(String customerArea) {
+        this.customerArea = customerArea;
+    }
+
+    public String getStationArea() {
+        return stationArea;
+    }
+
+    public void setStationArea(String stationArea) {
+        this.stationArea = stationArea;
     }
 
     public Date getStartSalesDate() {
@@ -56,5 +67,13 @@ public class SalesDTO extends Sales implements Serializable {
 
     public void setEndSalesDate(Date endSalesDate) {
         this.endSalesDate = endSalesDate;
+    }
+
+    public Boolean isTransferIsNull() {
+        return transferIsNull;
+    }
+
+    public void setTransferIsNull(Boolean transferIsNull) {
+        this.transferIsNull = transferIsNull;
     }
 }
