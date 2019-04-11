@@ -209,4 +209,10 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
     }
 
+    @RequestMapping("/demand/area")
+    public Object areaDemand(int year) {
+        Object data = this.analysisService.getAreaDemand(year);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, data);
+    }
+
 }

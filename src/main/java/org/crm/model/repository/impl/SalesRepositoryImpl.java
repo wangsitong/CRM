@@ -62,7 +62,7 @@ public class SalesRepositoryImpl implements SalesRepository {
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
             if (StringUtils.isNotBlank(condition.getCustomerId())) {
-                hql.append("and s.customer_d = :customerId ");
+                hql.append("and s.customer_id = :customerId ");
                 params.put("customerId", condition.getCustomerId());
             }
             if (StringUtils.isNotBlank(condition.getSalesStation())) {

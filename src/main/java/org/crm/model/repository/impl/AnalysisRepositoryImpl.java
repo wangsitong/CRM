@@ -378,6 +378,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     @Override
     public List<Map<String, Object>> findBySalesArea(SalesDTO condition) {
         StringBuilder sql = new StringBuilder();
+        sql.append("select a.area, b.gas,b.diesel,b.total from (");
+        sql.append("select distinct customer_area as area from private_station where customer_area is not null) a ");
+        sql.append("left join (");
         sql.append("SELECT p.customer_area as area,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
@@ -402,7 +405,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 sql.append("and s.is_transfer is null ");
             }
         }
-        sql.append("GROUP BY p.customer_area");
+        sql.append("GROUP BY p.customer_area) b on a.area = b.area");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
@@ -511,6 +514,21 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
         return ((Number)query.getSingleResult()).intValue();
+    }
+
+    public List<Map<String, Object>> findAreaDemand(int year) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select c.customer_area area,sum(c.customer_demand_gas) as gas,");
+        sql.append("SUM(c.customer_demand_diesel) AS diesel,");
+        sql.append("sum(c.customer_demand_gas+c.customer_demand_diesel) as total ");
+        sql.append("from customer_demand c where c.customer_id in (select customer_id from private_station) ");
+        sql.append("and c.customer_demand_year = :year ");
+        sql.append("group by c.customer_area ");
+
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.setParameter("year", year);
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
     }
 
 }

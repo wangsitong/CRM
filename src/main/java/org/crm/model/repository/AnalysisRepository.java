@@ -39,4 +39,6 @@ public interface AnalysisRepository {
 
     int findCountByLastSalesDate();
 
+    List<Map<String, Object>> findAreaDemand(int year);
+
 }

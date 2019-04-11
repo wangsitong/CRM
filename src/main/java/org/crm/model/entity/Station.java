@@ -21,9 +21,9 @@ public class Station implements Serializable {
     private String area;
     @Column(name = "competition_station", length = 50)
     private String competitionStation;
-    @Column(name = "customer_manager", length = 50)
+    @Column(name = "customer_manager_id", length = 50)
     private String managerId;
-    @Column(name = "manager_name", length = 250)
+    @Column(name = "customer_manager", length = 250)
     private String managerName;
     @Column(name = "memo", length = 50)
     private String memo;

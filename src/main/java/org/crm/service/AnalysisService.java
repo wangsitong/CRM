@@ -95,4 +95,8 @@ public class AnalysisService {
         return new PageDTO<>(total, dataList);
     }
 
+    public List<Map<String, Object>> getAreaDemand(int year) {
+        return this.analysisRepository.findAreaDemand(year);
+    }
+
 }
