@@ -1,8 +1,10 @@
 package org.crm.controller;
 
 import org.crm.common.PageDTO;
+import org.crm.common.PageInfo;
 import org.crm.common.ResponseUtils;
 import org.crm.model.entity.User;
+import org.crm.service.UserRoleService;
 import org.crm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +17,22 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRoleService userRoleService;
 
     @RequestMapping("")
     public Object list(User condition,
                        @RequestParam(value = "page", defaultValue = "1", required = false) int page,
                        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
         PageDTO pageDTO = this.userService.getList(condition, page, pageSize);
-        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, pageDTO);
+        PageInfo pageInfo = new PageInfo(page, pageSize, pageDTO.getTotal());
+        List<User> dataList = pageDTO.getDataList();
+        dataList.forEach(data -> {
+            List<?> roles = this.userRoleService.getRoles(data.getId());
+            data.setRoles(roles);
+        });
+
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataList, pageInfo);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

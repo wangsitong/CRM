@@ -27,7 +27,19 @@ public class UserService {
     private RoleObjectRepository roleObjectRepository;
 
     public User getByUserName(String userName) {
-        return this.userRepository.findByUserName(userName);
+        List<User> dataList = this.userRepository.findByProperty("userName", userName);
+        if (dataList != null && !dataList.isEmpty()) {
+            return dataList.get(0);
+        }
+        return null;
+    }
+
+    public User getByUserId(String userId) {
+        List<User> dataList = this.userRepository.findByProperty("userId", userId);
+        if (dataList != null && !dataList.isEmpty()) {
+            return dataList.get(0);
+        }
+        return null;
     }
 
     public User getById(String id) {
@@ -43,15 +55,16 @@ public class UserService {
 
     @Transactional
     public void save(User user) throws Exception {
+        User u = this.getByUserId(user.getUserId());
         if (StringUtils.isBlank(user.getId())) {
-            User u = this.userRepository.findByUserName(user.getUserName());
             if (u != null) {
-                throw new Exception("User('" + user.getUserName() + "') exists");
+                throw new Exception("User('" + user.getUserId() + "') exists");
             }
             user.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             this.userRepository.insert(user);
         } else {
-            this.userRepository.update(user);
+            u.setUserName(user.getUserName());
+            this.userRepository.update(u);
         }
     }
 

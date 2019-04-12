@@ -42,7 +42,7 @@ public class SalesService {
                 continue;
             }
 
-            sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            // sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             this.salesRepository.save(sales);
         }
     }
@@ -53,7 +53,12 @@ public class SalesService {
             if (StringUtils.isBlank(sales.getId())) {
                 sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             }
-            this.salesRepository.save(sales);
+            try {
+                this.salesRepository.merge(sales);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
         }
     }
 

@@ -19,6 +19,8 @@ public interface SalesRepository {
 
     void save(Sales sales);
 
+    void merge(Sales sales);
+
     void delete(String id);
 
 }

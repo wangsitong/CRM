@@ -71,7 +71,11 @@ public class SalesImpController {
             workbook.close();
         }
 
-        this.setTransfer(earliestDate);
+        try {
+            this.setTransfer(earliestDate);
+        } catch (Exception e) {
+            return ResponseUtils.error("数据保存失败, " + e.getMessage());
+        }
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("total", dataList.size());
@@ -101,6 +105,7 @@ public class SalesImpController {
             double salesPrice = Double.valueOf((String) POIUtils.getCellValue(row.getCell(9)));
 
             Sales sales = new Sales();
+            sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             sales.setSalesDate(df.parse(salesDate));
             sales.setCustomerId(customerId);
             sales.setCustomerName(customerName);
@@ -145,21 +150,26 @@ public class SalesImpController {
     private void setTransfer(Date salesDate) {
         SalesDTO condition = new SalesDTO();
         condition.setStartSalesDate(salesDate);
-        List<Sales> dataList = this.salesService.getByNeedTransfer(condition);
-        Map<String, Customer> cacheMap = new HashMap<>();
-        dataList.forEach(item -> {
-            Customer customer = cacheMap.get(item.getCustomerId());
-            if (customer == null) {
-                customer = this.customerService.getByCode(item.getCustomerId());
-                cacheMap.put(item.getCustomerId(), customer);
-            }
-            if (customer != null) {
-                item.setTransfer("1");
-                item.setOriginalManagerId(customer.getManagerId());
-                item.setOriginalManagerName(customer.getManagerName());
-            }
-        });
-        this.salesService.saveOrUpdate(dataList);
+        try {
+            List<Sales> dataList = this.salesService.getByNeedTransfer(condition);
+            Map<String, Customer> cacheMap = new HashMap<>();
+            dataList.forEach(item -> {
+                Customer customer = cacheMap.get(item.getCustomerId());
+                if (customer == null) {
+                    customer = this.customerService.getByCode(item.getCustomerId());
+                    cacheMap.put(item.getCustomerId(), customer);
+                }
+                if (customer != null) {
+                    item.setTransfer("1");
+                    item.setOriginalManagerId(customer.getManagerId());
+                    item.setOriginalManagerName(customer.getManagerName());
+                }
+            });
+            this.salesService.saveOrUpdate(dataList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
 }

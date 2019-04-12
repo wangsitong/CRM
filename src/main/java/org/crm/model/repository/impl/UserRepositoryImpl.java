@@ -25,15 +25,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User findByUserName(String userName) {
-        String hql = "from User where userName = :userName";
+    public List<User> findByProperty(String propertyName, Object propertyValue) {
+        String hql = "from User where " + propertyName + " = :property";
         Query query = this.entityManager.createQuery(hql);
-        query.setParameter("userName", userName);
+        query.setParameter("property", propertyValue);
         List dataList = query.getResultList();
-        if (dataList != null && !dataList.isEmpty()) {
-            return (User) dataList.get(0);
-        }
-        return null;
+        return dataList;
     }
 
     @Override

@@ -8,7 +8,7 @@ public interface UserRepository {
 
     User findById(String id);
 
-    User findByUserName(String userName);
+    List<User> findByProperty(String propertyName, Object propertyValue);
 
     List<User> findList(User condition, int firstResult, int maxResults);
 

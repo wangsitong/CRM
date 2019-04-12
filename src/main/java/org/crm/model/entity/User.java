@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Users")
@@ -11,17 +13,20 @@ import java.io.Serializable;
 public class User implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", length = 40, nullable = false, unique = true)
     private String id;
     @Column(name = "user_id", length = 20, nullable = false, unique = true)
     private String userId;
-    @Column(name = "user_name", length = 255, nullable = false)
+    @Column(name = "user_name", length = 20, nullable = false, unique = true)
     private String userName;
     @Column(name = "password", length = 40, nullable = false)
     @Transient
     private String password;
     @Column(name = "user_type", length = 10, nullable = false)
     private String type;
+
+    @Transient
+    private List<?> roles = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -61,5 +66,13 @@ public class User implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<?> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<?> roles) {
+        this.roles = roles;
     }
 }

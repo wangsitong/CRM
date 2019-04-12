@@ -138,14 +138,20 @@ public class SalesRepositoryImpl implements SalesRepository {
 
     public List<Sales> findByNeedTransfer(SalesDTO condition) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select s from Sales s ");
-        sql.append("where s.salesChannel = '零售' and s.salesStation <> '#' ");
-        sql.append("and s.customerId in (");
-        sql.append("select customerId from Sales where salesChannel <> '零售') ");
+        sql.append("select s.id,s.sales_channel salesChannel,s.sales_date salesDate,s.customer_id customerId,");
+        sql.append("s.customer_name customerName,s.sales_oil salesOil,s.manager_id managerId,");
+        sql.append("s.manager_name managerName,s.sales_station salesStation,");
+        sql.append("s.sales_count salesCount,s.sales_price salesPrice,s.is_transfer transfer,");
+        sql.append("s.original_manager_id originalManagerId,s.original_manager_name originalManagerName ");
+        sql.append("from sales s ");
+        sql.append("where s.sales_channel = '零售' and s.sales_station <> '#' ");
+        sql.append("and s.customer_id in (");
+        sql.append("select customer_id from sales where sales_channel <> '零售') ");
 
         Map<String, Object> params = this.setQueryParams(condition, sql);
 
-        Query query = this.entityManager.createQuery(sql.toString());
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.aliasToBean(Sales.class));
         QueryUtils.setParams(query, params);
         return query.getResultList();
     }
@@ -153,6 +159,10 @@ public class SalesRepositoryImpl implements SalesRepository {
     @Override
     public void save(Sales sales) {
         this.entityManager.persist(sales);
+    }
+
+    public void merge(Sales sales) {
+        this.entityManager.merge(sales);
     }
 
     @Override
