@@ -14,8 +14,10 @@ import org.crm.common.ResponseUtils;
 import org.crm.model.dto.SalesDTO;
 import org.crm.model.entity.Customer;
 import org.crm.model.entity.Sales;
+import org.crm.model.entity.Station;
 import org.crm.service.CustomerService;
 import org.crm.service.SalesService;
+import org.crm.service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,6 +41,10 @@ public class SalesImpController {
     private SalesService salesService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private StationService stationService;
+
+    private List<String> transferStations = new ArrayList<>();
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public Object imp(@RequestParam("file") MultipartFile file) throws Exception {
@@ -58,9 +64,8 @@ public class SalesImpController {
         }
 
         List<Sales> dataList = new ArrayList<>();
-        Date earliestDate = null;
         try {
-            earliestDate = this.parseDatas(workbook, dataList);
+            this.parseDatas(workbook, dataList);
             this.salesService.save(dataList);
         } catch (DataParseException e) {
             return ResponseUtils.getResult(ResponseUtils.STATUS_ERROR, e.getData());
@@ -72,7 +77,7 @@ public class SalesImpController {
         }
 
         try {
-            this.setTransfer(earliestDate);
+            this.setTransfer(dataList);
         } catch (Exception e) {
             return ResponseUtils.error("数据保存失败, " + e.getMessage());
         }
@@ -83,6 +88,19 @@ public class SalesImpController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, resultMap);
     }
 
+    private List<String> getTransferStation() {
+        List<String> stationIds = new ArrayList<>();
+        Station condition = new Station();
+        condition.setTransfer("1");
+        try {
+            List<Station> dataList = this.stationService.getAll(condition);
+            dataList.forEach(data -> stationIds.add(data.getStationId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return stationIds;
+    }
+
     private Date parseDatas(Workbook workbook, List<Sales> dataList) throws Exception {
         Sheet sheet = workbook.getSheetAt(0);
         int rowCount = sheet.getLastRowNum();
@@ -90,11 +108,11 @@ public class SalesImpController {
 
         Date minDate = new Date();
 
-        for (int i = 3; i <= rowCount; i++) {
+        for (int i = 4; i <= rowCount; i++) {
             Row row = sheet.getRow(i);
 
-            String salesDate = POIUtils.getStringCellValue(row.getCell(0));
-            String salesChannel = POIUtils.getStringCellValue(row.getCell(1));
+            String salesChannel = POIUtils.getStringCellValue(row.getCell(0));
+            String salesDate = POIUtils.getStringCellValue(row.getCell(1));
             String customerId = POIUtils.getStringCellValue(row.getCell(2));
             String customerName = POIUtils.getStringCellValue(row.getCell(3));
             String salesOil = POIUtils.getStringCellValue(row.getCell(4));
@@ -139,32 +157,34 @@ public class SalesImpController {
         Map<String, Object> validateMap = new HashMap<>();
         List<String> errors = new ArrayList<>();
         validateMap.put("errors", errors);
-//        if (StringUtils.isNotBlank(sales.getSalesChannel()) || !ArrayUtils.contains(salesChannels, sales.getSalesChannel())) {
-//            errors.add("销售渠道不正确");
-//        }
+        if (StringUtils.isBlank(sales.getSalesChannel()) || !ArrayUtils.contains(salesChannels, sales.getSalesChannel())) {
+            errors.add("销售渠道不正确");
+        }
 
         validateMap.put("status", errors.isEmpty());
         return validateMap;
     }
 
-    private void setTransfer(Date salesDate) {
-        SalesDTO condition = new SalesDTO();
-        condition.setStartSalesDate(salesDate);
+    private void setTransfer(List<Sales> dataList) {
         try {
-            List<Sales> dataList = this.salesService.getByNeedTransfer(condition);
+            this.transferStations = this.getTransferStation();
+
             Map<String, Customer> cacheMap = new HashMap<>();
-            dataList.forEach(item -> {
-                Customer customer = cacheMap.get(item.getCustomerId());
+            for (Sales sales : dataList) {
+                if (!this.transferStations.contains(sales.getSalesStation())) {
+                    continue;
+                }
+                sales.setTransfer("1");
+                Customer customer = cacheMap.get(sales.getCustomerId());
                 if (customer == null) {
-                    customer = this.customerService.getByCode(item.getCustomerId());
-                    cacheMap.put(item.getCustomerId(), customer);
+                    customer = this.customerService.getByCode(sales.getCustomerId());
+                    cacheMap.put(sales.getCustomerId(), customer);
                 }
                 if (customer != null) {
-                    item.setTransfer("1");
-                    item.setOriginalManagerId(customer.getManagerId());
-                    item.setOriginalManagerName(customer.getManagerName());
+                    sales.setOriginalManagerId(customer.getManagerId());
+                    sales.setOriginalManagerName(customer.getManagerName());
                 }
-            });
+            }
             this.salesService.saveOrUpdate(dataList);
         } catch (Exception e) {
             e.printStackTrace();

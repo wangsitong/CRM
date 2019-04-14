@@ -4,15 +4,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.crm.model.entity.Station;
 import org.crm.model.repository.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,26 +24,45 @@ public class StationService {
     private StationRepository stationRepository;
 
     public Page<Station> getList(Station condition, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
-        Specification specification = new Specification() {
-            @Override
-            public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
+        return this.stationRepository.findAll(this.createSpecification(condition), PageRequest.of(page, pageSize));
+    }
 
-                return null;
+    public List<Station> getAll(Station condition) {
+        return this.stationRepository.findAll(this.createSpecification(condition), Sort.by(Sort.Order.asc("name")));
+    }
+
+    private Specification<Station> createSpecification(Station condition) {
+        Specification<Station> spec = (Specification<Station>) (root, criteriaQuery, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (condition != null) {
+                if (StringUtils.isNotBlank(condition.getStationId())) {
+                    predicates.add(criteriaBuilder.equal(root.get("stationId"), condition.getStationId()));
+                }
+                if (StringUtils.isNotBlank(condition.getTransfer())) {
+                    predicates.add(criteriaBuilder.equal(root.get("transfer"), condition.getTransfer()));
+                }
             }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[] {}));
         };
-        return this.stationRepository.findAll(specification, pageable);
+        return spec;
     }
 
     public Station getByStationId(String stationId) {
-        return this.stationRepository.findByStationId(stationId);
+        Station condition = new Station();
+        condition.setStationId(stationId);
+        Example<Station> example = Example.of(condition);
+        Optional<Station> data = this.stationRepository.findOne(example);
+        return data.get();
     }
 
     public Station getByName(String name) {
-        return this.stationRepository.findByName(name);
+        Station condition = new Station();
+        condition.setName(name);
+        Example<Station> example = Example.of(condition);
+        Optional<Station> data = this.stationRepository.findOne(example);
+        return data.get();
     }
 
-    @Transactional
     public void save(Station instance) {
         if (StringUtils.isBlank(instance.getId())) {
             instance.setId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -49,15 +70,8 @@ public class StationService {
         this.stationRepository.save(instance);
     }
 
-    @Transactional
-    public void delete(String id) {
-        String[] ids = id.split(",");
-        for (String _id : ids) {
-            if (StringUtils.isBlank(_id)) {
-                continue;
-            }
-            this.stationRepository.deleteById(_id);
-        }
+    public void  delete(String id) {
+        this.stationRepository.deleteById(id);
     }
 
 }

@@ -45,19 +45,10 @@ public class SalesController {
     }
 
     @RequestMapping("/setTransfer")
-    public Object setTransfer(String id) {
+    public Object setTransfer(@RequestParam("id") String id, @RequestParam("managerId") String managerId, @RequestParam("managerName") String managerName) {
         String[] ids = id.split(",");
         for (String _id : ids) {
-            Sales sales = this.salesService.getById(_id);
-            if (sales == null) {
-                continue;
-            }
-            Customer customer = this.customerService.getByCode(sales.getCustomerId());
-            if (customer == null) {
-                return ResponseUtils.error("客户信息不存在!");
-            }
-
-            this.salesService.setTransfer(_id, customer.getManagerId(), customer.getManagerName());
+            this.salesService.setTransfer(_id, managerId, managerName);
         }
 
         return ResponseUtils.success();

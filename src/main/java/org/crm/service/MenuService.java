@@ -2,7 +2,10 @@ package org.crm.service;
 
 import org.crm.common.ConstantUtils;
 import org.crm.model.entity.Menu;
+import org.crm.model.entity.Role;
+import org.crm.model.entity.UserRole;
 import org.crm.model.repository.MenuRepository;
+import org.crm.model.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

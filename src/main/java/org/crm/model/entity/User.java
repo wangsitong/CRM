@@ -20,7 +20,6 @@ public class User implements Serializable {
     @Column(name = "user_name", length = 20, nullable = false, unique = true)
     private String userName;
     @Column(name = "password", length = 40, nullable = false)
-    @Transient
     private String password;
     @Column(name = "user_type", length = 10, nullable = false)
     private String type;

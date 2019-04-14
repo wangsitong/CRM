@@ -4,35 +4,26 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 @Entity
-@Table(name = "private_station")
-public class Station implements Serializable {
+@Table(name = "station")
+public class Station {
 
     @Id
     @Column(name = "id", length = 40, nullable = false, unique = true)
     private String id;
-    @Column(name = "customer_id", length = 50)
+    @Column(name = "station_id", length = 50)
     private String stationId;
-    @Column(name = "customer_name", length = 50)
+    @Column(name = "name", length = 50)
     private String name;
-    @Column(name = "customer_area", length = 50)
-    private String area;
-    @Column(name = "competition_station", length = 50)
-    private String competitionStation;
-    @Column(name = "customer_manager_id", length = 50)
-    private String managerId;
-    @Column(name = "customer_manager", length = 250)
-    private String managerName;
-    @Column(name = "memo", length = 50)
-    private String memo;
-    @Column(name = "customer_address", length = 50)
+    @Column(name = "address", length = 250)
     private String address;
-    @Column(name = "customer_atten", length = 50)
-    private String atten;
-    @Column(name = "tel", length = 50)
-    private String tel;
+    @Column(name = "area", length = 50)
+    private String area;
+    @Column(name = "property", length = 50)
+    private String property;
+    @Column(name = "transfer", length = 1)
+    private String transfer;
 
     public String getId() {
         return id;
@@ -58,46 +49,6 @@ public class Station implements Serializable {
         this.name = name;
     }
 
-    public String getArea() {
-        return area;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
-    public String getCompetitionStation() {
-        return competitionStation;
-    }
-
-    public void setCompetitionStation(String competitionStation) {
-        this.competitionStation = competitionStation;
-    }
-
-    public String getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(String managerId) {
-        this.managerId = managerId;
-    }
-
-    public String getManagerName() {
-        return managerName;
-    }
-
-    public void setManagerName(String managerName) {
-        this.managerName = managerName;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
-
     public String getAddress() {
         return address;
     }
@@ -106,19 +57,27 @@ public class Station implements Serializable {
         this.address = address;
     }
 
-    public String getAtten() {
-        return atten;
+    public String getArea() {
+        return area;
     }
 
-    public void setAtten(String atten) {
-        this.atten = atten;
+    public void setArea(String area) {
+        this.area = area;
     }
 
-    public String getTel() {
-        return tel;
+    public String getProperty() {
+        return property;
     }
 
-    public void setTel(String tel) {
-        this.tel = tel;
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
+    public String getTransfer() {
+        return transfer;
+    }
+
+    public void setTransfer(String transfer) {
+        this.transfer = transfer;
     }
 }
