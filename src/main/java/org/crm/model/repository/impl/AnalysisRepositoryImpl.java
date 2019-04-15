@@ -160,7 +160,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) totalOfDiesel ");
         sql.append("from (");
         sql.append("select s.* from sales s ");
-        sql.append("where sales_station = '#' ");
+        sql.append("left join customer c on s.customer_id = c.customer_id ");
+        sql.append("where c.customer_manager <> '大客户' ");
+        sql.append("AND sales_station = '#' ");
         sql.append("and s.customer_id in (select customer_id from private_station) ");
         sql.append("union all ");
         sql.append("select s.* from sales s where s.is_transfer = '1') as s where 1=1 ");
@@ -250,7 +252,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
         sql.append("SUM(s.sales_count) total ");
-        sql.append("FROM sales s WHERE sales_channel  <> '零售' ");
+        sql.append("FROM sales s left join customer c on s.customer_id = c.customer_id ");
+        sql.append("WHERE c.customer_manager <> '大客户' ");
+        sql.append("AND sales_channel  <> '零售' ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
@@ -365,7 +369,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '11' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t11_,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t12,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t12_ ");
-        sql.append("FROM sales s WHERE s.sales_date>= :startDate AND s.sales_date <= :endDate AND sales_channel <> '零售' ");
+        sql.append("FROM sales s left join customer c on s.customer_id = c.customer_id ");
+        sql.append("WHERE s.sales_date>= :startDate AND s.sales_date <= :endDate AND sales_channel <> '零售' ");
+        sql.append("and c.customer_manager <> '大客户' ");
         sql.append("GROUP BY s.manager_id, s.manager_name");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
