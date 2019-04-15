@@ -93,6 +93,9 @@ public class SalesRepositoryImpl implements SalesRepository {
                 hql.append("and c.customer_area = :area ");
                 params.put("area", condition.getCustomerArea());
             }
+            if ("1".equals(condition.getExcludeCustomer())) {
+                hql.append("and s.customer_id <> '40257480' ");
+            }
         }
         return params;
     }

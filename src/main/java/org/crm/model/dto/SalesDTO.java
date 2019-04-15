@@ -20,6 +20,8 @@ public class SalesDTO extends Sales implements Serializable {
 
     private Boolean transferIsNull;
 
+    private String excludeCustomer;
+
     public String getSalesStationNotEquals() {
         return salesStationNotEquals;
     }
@@ -66,5 +68,13 @@ public class SalesDTO extends Sales implements Serializable {
 
     public void setTransferIsNull(Boolean transferIsNull) {
         this.transferIsNull = transferIsNull;
+    }
+
+    public String getExcludeCustomer() {
+        return excludeCustomer;
+    }
+
+    public void setExcludeCustomer(String excludeCustomer) {
+        this.excludeCustomer = excludeCustomer;
     }
 }
