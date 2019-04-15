@@ -25,7 +25,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     public List<Map<String, Object>> findStatisBySaleChannel(SalesDTO condition) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sql= new StringBuilder();
-        sql.append("select sales_channel as channel, sum(s.sales_count) as count from sales s where 1=1 ");
+        sql.append("select sales_channel as channel, sum(s.sales_count) as count from sales s where s.customer_id <> '40257480' ");
         sql.append("and s.sales_channel in ('直销', '分销') ");
         if (condition != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -52,7 +52,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     @Override
     public double findSalesCount(SalesDTO condition) {
         StringBuilder sql= new StringBuilder();
-        sql.append("select sum(s.sales_count) as count from sales s where 1=1 ");
+        sql.append("select sum(s.sales_count) as count from sales s where s.customer_id <> '40257480' ");
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -91,7 +91,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         StringBuilder sql= new StringBuilder();
         sql.append("select s.customer_id as customerId, s.customer_name as customerName,");
         sql.append("c.customer_manager as customerManager,sum(sales_count) as total from sales s ");
-        sql.append("left join customer c on s.customer_id = c.customer_id where 1=1 ");
+        sql.append("left join customer c on s.customer_id = c.customer_id where s.customer_id <> '40257480' ");
         sql.append("and ifnull(c.analysis_exclude, '') <> '1' ");
 
         Map<String, Object> params = new HashMap<>();
@@ -120,7 +120,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("select date_format(s.sales_date, '%Y%m') as date,");
         sql.append("sum(case when s.sales_channel = '直销' then s.sales_count else 0 end) channel_zx,");
         sql.append("sum(case when s.sales_channel = '分销' then s.sales_count else 0 end) channel_fx ");
-        sql.append("from sales s where 1=1 ");
+        sql.append("from sales s where s.customer_id <> '40257480' ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
@@ -163,7 +163,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("from (");
         sql.append("select s.* from sales s ");
         sql.append("left join customer c on s.customer_id = c.customer_id ");
-        sql.append("where c.customer_manager <> '大客户' ");
+        sql.append("where s.customer_id <> '40257480' and c.customer_manager <> '大客户' ");
         sql.append("AND sales_station = '#' ");
         sql.append("and s.customer_id in (select customer_id from private_station) ");
         sql.append("union all ");
@@ -197,7 +197,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(s.sales_count) total ");
         sql.append("FROM sales s ");
         sql.append("LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
-        sql.append("WHERE s.customer_id IN (SELECT customer_id FROM private_station) ");
+        sql.append("WHERE s.customer_id <> '40257480' and s.customer_id IN (SELECT customer_id FROM private_station) ");
 
         Map<String, Object> params = this.setQueryParamsByStationsAndArea(sql, condition);
         sql.append("GROUP BY  s.customer_id,s.customer_name,p.customer_area ");
@@ -219,7 +219,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(s.sales_count) total ");
         sql.append("FROM sales s ");
         sql.append("LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
-        sql.append("WHERE s.customer_id IN (SELECT customer_id FROM private_station) ");
+        sql.append("WHERE s.customer_id <> '40257480' and s.customer_id IN (SELECT customer_id FROM private_station) ");
 
         Map<String, Object> params = this.setQueryParamsByStationsAndArea(sql, condition);
         sql.append("GROUP BY  s.customer_id,s.customer_name,p.customer_area ");
@@ -256,7 +256,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
         sql.append("SUM(s.sales_count) total ");
         sql.append("FROM sales s left join customer c on s.customer_id = c.customer_id ");
-        sql.append("WHERE c.customer_manager <> '大客户' ");
+        sql.append("WHERE s.customer_id <> '40257480' and c.customer_manager <> '大客户' ");
         sql.append("AND sales_channel  <> '零售' ");
 
         Map<String, Object> params = new HashMap<>();
@@ -290,7 +290,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN t.total < 200 AND t.total >= 0 THEN 1 ELSE 0 END) t6 ");
         sql.append("FROM (SELECT s.customer_id ,s.customer_name,");
         sql.append("SUM(s.sales_count) AS total ");
-        sql.append("FROM sales s WHERE sales_channel <> '零售' ");
+        sql.append("FROM sales s WHERE s.customer_id <> '40257480' and sales_channel <> '零售' ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
@@ -322,7 +322,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT s.customer_id as customerId,s.customer_name customerName,");
         sql.append("SUM(s.sales_count) AS total ");
-        sql.append("FROM sales s WHERE s.sales_channel  <> '零售' ");
+        sql.append("FROM sales s WHERE s.customer_id <> '40257480' and s.sales_channel  <> '零售' ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
@@ -374,7 +374,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t12_ ");
         sql.append("FROM sales s left join customer c on s.customer_id = c.customer_id ");
         sql.append("WHERE s.sales_date>= :startDate AND s.sales_date <= :endDate AND sales_channel <> '零售' ");
-        sql.append("and c.customer_manager <> '大客户' ");
+        sql.append("and c.customer_manager <> '大客户' and s.customer_id <> '40257480' ");
         sql.append("GROUP BY s.manager_id, s.manager_name");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
@@ -396,7 +396,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(s.sales_count) total ");
         sql.append("FROM sales s ");
         sql.append("LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
-        sql.append("WHERE s.customer_id IN ");
+        sql.append("WHERE s.customer_id <> '40257480' and s.customer_id IN ");
         sql.append("(SELECT customer_id FROM private_station)");
 
         Map<String, Object> params = new HashMap<>();
@@ -429,7 +429,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) diesel,");
         sql.append("sum(s.sales_count) total ");
         sql.append("from sales s ");
-        sql.append("where (s.sales_channel <> '零售' or s.is_transfer = '1') ");
+        sql.append("where s.customer_id <> '40257480' and (s.sales_channel <> '零售' or s.is_transfer = '1') ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
@@ -464,7 +464,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
         sql.append("SUM(s.sales_count) total ");
         sql.append("FROM sales s LEFT JOIN private_station p ON s.customer_id = p.customer_id ");
-        sql.append("WHERE s.customer_id IN (SELECT customer_id FROM private_station) ");
+        sql.append("WHERE s.customer_id <> '40257480' and s.customer_id IN (SELECT customer_id FROM private_station) ");
 
         Calendar startSalesDate = Calendar.getInstance();
         startSalesDate.setTime(condition.getStartSalesDate());
@@ -500,9 +500,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     public List<Map<String, Object>> findCustomerByLastSalesDate(int firstResult, int maxResults) {
         StringBuilder sql = new StringBuilder();
         sql.append("select s.customer_id as customerId,s.customer_name as customerName, max(s.sales_date) lastDate ");
-        sql.append("from sales s ");
+        sql.append("from sales s where s.customer_id <> '40257480' ");
         sql.append("group by s.customer_id,s.customer_name ");
-        sql.append("having lastdate < date_add(now(), interval -30 day) ");
+        sql.append("having lastdate < date_add(now(), interval -3 MONTH) ");
         sql.append("order by lastDate desc");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
@@ -516,9 +516,9 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         StringBuilder sql = new StringBuilder();
         sql.append("select count(*) from (");
         sql.append("select s.customer_id as customerId,s.customer_name as customerName, max(s.sales_date) lastDate ");
-        sql.append("from sales s ");
+        sql.append("from sales s where s.customer_id <> '40257480' ");
         sql.append("group by s.customer_id,s.customer_name ");
-        sql.append("having lastdate < date_add(now(), interval -30 day) ");
+        sql.append("having lastdate < date_add(now(), interval -3 MONTH) ");
         sql.append(") a");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
