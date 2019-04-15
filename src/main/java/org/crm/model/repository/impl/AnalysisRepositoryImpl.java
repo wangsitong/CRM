@@ -155,6 +155,8 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
     @Override
     public List<Map<String, Object>> findManagerSales(SalesDTO condition) {
         StringBuilder sql = new StringBuilder();
+        sql.append("select m.manager_id as managerId,m.manager_name as managerName,a.totalOfGas,a.totalOfDiesel ");
+        sql.append("from manager m left join (");
         sql.append("select s.manager_id as managerId,s.manager_name as managerName,");
         sql.append("sum(case when s.sales_oil like '%汽油%' then s.sales_count else 0 end) totalOfGas,");
         sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) totalOfDiesel ");
@@ -180,6 +182,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
             }
         }
         sql.append("group by s.manager_id,s.manager_name");
+        sql.append(") a on m.manager_id = a.managerId");
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
         query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
