@@ -71,4 +71,22 @@ public class UserController {
         return ResponseUtils.success();
     }
 
+    @RequestMapping(value = "/changePassword", method = RequestMethod.POST)
+    public Object changePassword(@RequestParam("id") String id,
+                                 @RequestParam("oldPassword") String oldPassword,
+                                 @RequestParam("password") String password) {
+        User user = this.userService.getById(id);
+        if (!oldPassword.equals(user.getPassword())) {
+            return ResponseUtils.error("原始密码错误!");
+        }
+        user.setPassword(password);
+        try {
+            this.userService.save(user);
+            return ResponseUtils.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseUtils.error("操作失败, 请重试!");
+    }
+
 }
