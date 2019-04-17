@@ -50,6 +50,10 @@ public class SalesPlanRepositoryImpl implements SalesPlanRepository {
                 sql.append("and executor_id = :executorId ");
                 params.put("executorId", condition.getExecutorId());
             }
+            if (StringUtils.isNotBlank(condition.getExecutorName())) {
+                sql.append("and executor_name = :executorName ");
+                params.put("executorName", condition.getExecutorName());
+            }
             if (condition.getDate() != null) {
                 sql.append("and date_format(date, '%Y%m') = :date ");
                 params.put("date", (new SimpleDateFormat("yyyyMM").format(condition.getDate())));

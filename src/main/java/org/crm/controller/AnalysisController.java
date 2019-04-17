@@ -140,12 +140,12 @@ public class AnalysisController {
         List<Map<String, Object>> dataList = this.analysisService.getManagerSales(condition);
 
         for (Map<String, Object> data : dataList) {
-            if (data.get("managerId") == null) {
+            if (data.get("managerName") == null) {
                 continue;
             }
-            String managerId = data.get("managerId").toString();
+            String managerName = data.get("managerName").toString();
             SalesPlan taskCondition = new SalesPlan();
-            taskCondition.setExecutorId(managerId);
+            taskCondition.setExecutorName(managerName);
             taskCondition.setDate(d);
             PageDTO dto = this.salesPlanService.getList(taskCondition, 1, 10);
             List<SalesPlan> managerTasks = dto.getDataList();
