@@ -140,6 +140,9 @@ public class AnalysisController {
         List<Map<String, Object>> dataList = this.analysisService.getManagerSales(condition);
 
         for (Map<String, Object> data : dataList) {
+            if (data.get("managerId") == null) {
+                continue;
+            }
             String managerId = data.get("managerId").toString();
             SalesPlan taskCondition = new SalesPlan();
             taskCondition.setExecutorId(managerId);
