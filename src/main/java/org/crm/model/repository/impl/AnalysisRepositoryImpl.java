@@ -254,14 +254,21 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
 
     public List<Map<String, Object>> findByManagerAndOilsCategory(SalesDTO condition) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT s.manager_id managerId,s.manager_name managerName,");
+        sql.append("SELECT s.manager_name managerName,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) gas,");
         sql.append("SUM(CASE WHEN s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) diesel,");
         sql.append("SUM(s.sales_count) total ");
-        sql.append("FROM sales s ");
-        sql.append("WHERE s.customer_id <> '40257480' ");
-        sql.append("and s.customer_id not in (select customer_id from customer where customer_manager = '大客户') ");
+        sql.append("FROM (");
+
+        sql.append("select s.sales_date,s.manager_id,s.manager_name,s.sales_oil,s.sales_count ");
+        sql.append("from sales s ");
+        sql.append("where s.customer_id <> '40257480' and s.customer_id not in (select customer_id from customer where customer_manager = '大客户') ");
         sql.append("AND sales_channel <> '零售' ");
+        sql.append("union all ");
+        sql.append("select s.sales_date,s.original_manager_id as manager_id,s.original_manager_name as manager_name,s.sales_oil,s.sales_count ");
+        sql.append("from sales s where s.is_transfer = '1' and s.original_manager_name is not null ");
+
+        sql.append(") s WHERE 1=1 ");
 
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
@@ -275,7 +282,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
                 params.put("endSalesDate", df.format(condition.getEndSalesDate()));
             }
         }
-        sql.append("GROUP BY s.manager_id,s.manager_name");
+        sql.append("GROUP BY s.manager_name");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
         QueryUtils.setParams(query, params);
@@ -351,7 +358,7 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
 
     public List<Map<String, Object>> findByManagerAndOilsCategoryPerMonth(int year) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT s.manager_id managerId, s.manager_name managerName,");
+        sql.append("SELECT s.manager_name managerName,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '01' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t1,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '01' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t1_,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '02' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t2,");
@@ -376,11 +383,18 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '11' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t11_,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%汽油%' THEN s.sales_count ELSE 0 END) t12,");
         sql.append("SUM(CASE WHEN DATE_FORMAT(s.sales_date,'%m') = '12' AND s.sales_oil LIKE '%柴油%' THEN s.sales_count ELSE 0 END) t12_ ");
-        sql.append("FROM sales s ");
-        sql.append("WHERE s.sales_date>= :startDate AND s.sales_date <= :endDate AND sales_channel <> '零售' ");
-        sql.append("and s.customer_id <> '40257480' ");
-        sql.append("and s.customer_id not in (select customer_id from customer where customer_manager = '大客户') ");
-        sql.append("GROUP BY s.manager_id, s.manager_name");
+        sql.append("FROM ( ");
+
+        sql.append("select s.sales_date,s.manager_id,s.manager_name,s.sales_oil,s.sales_count ");
+        sql.append("from sales s ");
+        sql.append("where s.customer_id <> '40257480' and s.customer_id not in (select customer_id from customer where customer_manager = '大客户') ");
+        sql.append("AND sales_channel <> '零售' ");
+        sql.append("union all ");
+        sql.append("select s.sales_date,s.original_manager_id as manager_id,s.original_manager_name as manager_name,s.sales_oil,s.sales_count ");
+        sql.append("from sales s where s.is_transfer = '1' and s.original_manager_name is not null ");
+
+        sql.append(") s WHERE s.sales_date>= :startDate AND s.sales_date <= :endDate ");
+        sql.append("GROUP BY s.manager_name");
 
         Query query = this.entityManager.createNativeQuery(sql.toString());
         query.setParameter("startDate", year + "-01-01");

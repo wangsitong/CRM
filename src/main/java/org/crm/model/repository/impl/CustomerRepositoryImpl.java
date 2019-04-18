@@ -69,7 +69,7 @@ public class CustomerRepositoryImpl implements CustomerRepository<Customer> {
         Map<String, Object> params = new HashMap<>();
         if (condition != null) {
             if (StringUtils.isNotBlank(condition.getName())) {
-                hql.append("and (code like :name or name like :name or address like :name) ");
+                hql.append("and (name like :name) ");
                 params.put("name", "%" + condition.getName() + "%");
             }
             if (StringUtils.isNotBlank(condition.getSalesChannel())) {
