@@ -41,6 +41,9 @@ public class StationService {
                 if (StringUtils.isNotBlank(condition.getTransfer())) {
                     predicates.add(criteriaBuilder.equal(root.get("transfer"), condition.getTransfer()));
                 }
+                if (StringUtils.isNotBlank(condition.getProperty())) {
+                    predicates.add(criteriaBuilder.equal(root.get("property"), condition.getProperty()));
+                }
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[] {}));
         };

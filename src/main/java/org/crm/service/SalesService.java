@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +36,8 @@ public class SalesService {
     }
 
     @Transactional
-    public void save(List<Sales> dataList) {
+    public List<Sales> saveImportDatas(List<Sales> dataList) {
+        List<Sales> impDatas = new ArrayList<>();
         for (Sales sales : dataList) {
             List<Sales> list = this.salesRepository.findExact(sales);
             if (list != null && !list.isEmpty()) {
@@ -44,7 +46,9 @@ public class SalesService {
 
             // sales.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             this.salesRepository.save(sales);
+            impDatas.add(sales);
         }
+        return impDatas;
     }
 
     @Transactional

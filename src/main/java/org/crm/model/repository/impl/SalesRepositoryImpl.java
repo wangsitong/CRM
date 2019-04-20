@@ -65,9 +65,13 @@ public class SalesRepositoryImpl implements SalesRepository {
                 hql.append("and s.customer_id = :customerId ");
                 params.put("customerId", condition.getCustomerId());
             }
-            if (StringUtils.isNotBlank(condition.getSalesStation())) {
+            /*if (StringUtils.isNotBlank(condition.getSalesStation())) {
                 hql.append("and s.sales_station like :station ");
                 params.put("station", "%" + condition.getSalesStation() + "%");
+            }*/
+            if (StringUtils.isNotBlank(condition.getSalesStation())) {
+                hql.append("and s.sales_station = :salesStation ");
+                params.put("salesStation", condition.getSalesStation());
             }
             if (StringUtils.isNotBlank(condition.getSalesChannel())) {
                 hql.append("and s.sales_channel = :salesChannel ");
@@ -131,6 +135,10 @@ public class SalesRepositoryImpl implements SalesRepository {
             if (condition.getSalesPrice() != null) {
                 hql.append("and salesPrice = :salesPrice ");
                 params.put("salesPrice", condition.getSalesPrice());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesStation())) {
+                hql.append("and sales_station = :salesStation ");
+                params.put("salesStation", condition.getSalesStation());
             }
         }
 

@@ -66,7 +66,7 @@ public class SalesImpController {
         List<Sales> dataList = new ArrayList<>();
         try {
             this.parseDatas(workbook, dataList);
-            this.salesService.save(dataList);
+            dataList = this.salesService.saveImportDatas(dataList);
         } catch (DataParseException e) {
             return ResponseUtils.getResult(ResponseUtils.STATUS_ERROR, e.getData());
         } catch (Exception e) {
@@ -108,7 +108,7 @@ public class SalesImpController {
 
         Date minDate = new Date();
 
-        for (int i = 4; i <= rowCount; i++) {
+        for (int i = 3; i <= rowCount; i++) {
             Row row = sheet.getRow(i);
 
             String salesChannel = POIUtils.getStringCellValue(row.getCell(0));
