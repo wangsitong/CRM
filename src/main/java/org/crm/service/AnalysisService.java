@@ -99,4 +99,8 @@ public class AnalysisService {
         return this.analysisRepository.findAreaDemand(year);
     }
 
+    public Map<String, Object> getTotalByCatagory(SalesDTO condition) {
+        return this.analysisRepository.findTotalByCatagory(condition);
+    }
+
 }

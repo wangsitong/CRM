@@ -27,6 +27,12 @@ public class SalesService {
         return dto;
     }
 
+    public PageDTO<Sales> getManagerSales(SalesDTO condition, int firstResult, int maxResults) {
+        int total = this.salesRepository.findCountByManagerSales(condition);
+        List<Sales> dataList = this.salesRepository.findByManagerSales(condition, firstResult, maxResults);
+        return new PageDTO<>(total, dataList);
+    }
+
     public Sales getById(String id) {
         return this.salesRepository.findById(id);
     }

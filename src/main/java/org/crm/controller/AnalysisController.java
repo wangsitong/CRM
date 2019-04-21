@@ -50,6 +50,17 @@ public class AnalysisController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataMap);
     }
 
+    @RequestMapping("/sales/totalByCatagory")
+    public Object totalByCatagory(SalesDTO condition,
+                                  @RequestParam(name="tywy", required = false) String tywy) {
+        if ("1".equals(tywy)) {
+            condition.setSalesStationNotEquals("#");
+            condition.setSalesChannel("分销");
+        }
+        Map<String, Object> dataMap = this.analysisService.getTotalByCatagory(condition);
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dataMap);
+    }
+
     @RequestMapping("/customer-sales-rank")
     public Object getCustomerSalesRank(SalesDTO condition,
                                        @RequestParam(name = "len", required = false, defaultValue = "5") int len) {

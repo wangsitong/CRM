@@ -559,4 +559,67 @@ public class AnalysisRepositoryImpl implements AnalysisRepository {
         return query.getResultList();
     }
 
+    public Map<String, Object> findTotalByCatagory(SalesDTO condition) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select ");
+        sql.append("sum(case when s.sales_oil like '%汽油%' then s.sales_count else 0 end) gas,");
+        sql.append("sum(case when s.sales_oil like '%柴油%' then s.sales_count else 0 end) diesel,");
+        sql.append("sum(s.sales_count) total ");
+        sql.append("from sales s where 1=1 ");
+        Map<String, Object> params = this.setNormalQueryParams(condition, sql);
+        Query query = this.entityManager.createNativeQuery(sql.toString());
+        query.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        QueryUtils.setParams(query, params);
+        return (Map<String, Object>) query.getResultList().get(0);
+    }
+
+    private Map<String, Object> setNormalQueryParams(SalesDTO condition, StringBuilder sql) {
+        Map<String, Object> params = new HashMap<>();
+        if (condition != null) {
+            if (StringUtils.isNotBlank(condition.getCustomerId())) {
+                sql.append("and s.customer_id = :customerId ");
+                params.put("customerId", condition.getCustomerId());
+            }
+            if (StringUtils.isNotBlank(condition.getManagerName())) {
+                sql.append("and s.manager_name = :managerName ");
+                params.put("managerName", condition.getManagerName());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesStation())) {
+                sql.append("and s.sales_station = :salesStation ");
+                params.put("salesStation", condition.getSalesStation());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesChannel())) {
+                sql.append("and s.sales_channel = :salesChannel ");
+                params.put("salesChannel", condition.getSalesChannel());
+            }
+            if (condition.getStartSalesDate() != null) {
+                sql.append("and s.sales_date >= :startDate ");
+                params.put("startDate", condition.getStartSalesDate());
+            }
+            if (condition.getEndSalesDate() != null) {
+                sql.append("and s.sales_date <= :endDate ");
+                params.put("endDate", condition.getEndSalesDate());
+            }
+            if (StringUtils.isNotBlank(condition.getSalesStationNotEquals())) {
+                sql.append("and s.sales_station <> :stationNotEquals ");
+                params.put("stationNotEquals", condition.getSalesStationNotEquals());
+            }
+            if (StringUtils.isNotBlank(condition.getTransfer())) {
+                sql.append("and s.is_transfer = :transfer ");
+                params.put("transfer", condition.getTransfer());
+            }
+            if (condition.isTransferIsNull() != null && condition.isTransferIsNull()) {
+                sql.append("and s.is_transfer is null ");
+            }
+            if (StringUtils.isNotBlank(condition.getCustomerArea())) {
+                sql.append("and c.customer_area = :area ");
+                params.put("area", condition.getCustomerArea());
+            }
+            if ("1".equals(condition.getExcludeCustomer())) {
+                sql.append("and s.customer_id <> '40257480' ");
+            }
+        }
+        return params;
+    }
+
 }

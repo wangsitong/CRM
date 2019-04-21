@@ -41,4 +41,6 @@ public interface AnalysisRepository {
 
     List<Map<String, Object>> findAreaDemand(int year);
 
+    Map<String, Object> findTotalByCatagory(SalesDTO condition);
+
 }

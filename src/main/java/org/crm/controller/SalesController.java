@@ -44,6 +44,15 @@ public class SalesController {
         return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
     }
 
+    @RequestMapping("/manager")
+    public Object managerSales(SalesDTO condition,
+                               @RequestParam(value = "page", defaultValue = "1", required = false) int page,
+                               @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        PageDTO dto = this.salesService.getManagerSales(condition, (page - 1) * pageSize, pageSize);
+        PageInfo pageInfo = new PageInfo(page, pageSize, dto.getTotal());
+        return ResponseUtils.getResult(ResponseUtils.STATUS_SUCCESS, dto.getDataList(), pageInfo);
+    }
+
     @RequestMapping("/setTransfer")
     public Object setTransfer(@RequestParam("id") String id, @RequestParam("managerId") String managerId, @RequestParam("managerName") String managerName) {
         String[] ids = id.split(",");
