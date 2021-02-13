@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/system/user")
+@CrossOrigin
 public class UserController {
 
     @Autowired

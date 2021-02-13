@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "org.crm" })
+@ComponentScan(basePackages = { "org.crm","org.crm.controller" })
 @EntityScan(basePackages = { "org.crm.model.entity" })
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = { "org.crm.model.repository" })
